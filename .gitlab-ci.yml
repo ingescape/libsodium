@@ -1,19 +1,17 @@
 # Define job order
 stages:
-  - build-lib
+  - lib-build
   
 # Define library files
-.build-lib-files: &build-lib-files
+.lib-build-files: &lib-build-files
   only:
-    changes:
-      - ./**
     refs:
       - stable
 
 # Create library for macos
-lib-macos-release-x64:
-  <<: *build-lib-files
-  stage: build-lib
+lib-build-macos:
+  <<: *lib-build-files
+  stage: lib-build
   tags:
     - osx
   script:
@@ -21,10 +19,10 @@ lib-macos-release-x64:
     - ./autogen.sh
     - ./configure
     - make
-    - mkdir build
-    - make prefix=$PWD/build install
-    - make prefix=$HOME/builds/release/x64/usr/local/ install
-    - cd build
+    - mkdir release
+    - make prefix=$PWD/release install
+    - make prefix=$HOME/builds/release/ingescape/usr/local/ install
+    - cd deploy
     - tar zcvf ../libsodium.tgz *
     - cd ..
   artifacts:
