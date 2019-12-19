@@ -23,39 +23,12 @@ lib-macos-release-x64:
     - ./autogen.sh
     - ./configure
     - make
-  artifacts:
-    paths:
-      - build
-    name: "lib-macos-release-x64"
-    expire_in: 1 day
-  dependencies: []
-
-# Create install archive for macos 64 bits
-lib-installer-runtime-macos-x64:
-  <<: *build-lib-files
-  stage: installer-lib
-  tags:
-    - osx
-  script:
     - mkdir build
     - make prefix=$PWD/build install
-    - cd build
-    - tar zcvf ../libsodium.tgz *
-    - cd ..
+    - make prefix=$HOME/builds/release/x64/usr/local/ install
   artifacts:
     paths:
       - libsodium.tgz
-    name: "lib-installer-runtime-macos-x64"
-  dependencies:
-    - lib-macos-release-x64
-
-# Deploy for use by dependent libs and apps
-lib-deploy-macos-release-x64:
-  <<: *build-lib-files
-  stage: deploy-lib
-  tags:
-    - osx
-  script:
-    - make prefix=$HOME/builds/release/x64/usr/local/ install
-  dependencies:
-    - lib-macos-release-x64
+    name: "lib-macos-release-x64"
+    expire_in: 1 day
+  dependencies: []
