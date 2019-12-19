@@ -26,6 +26,9 @@ lib-macos-release-x64:
     - mkdir build
     - make prefix=$PWD/build install
     - make prefix=$HOME/builds/release/x64/usr/local/ install
+    - cd build
+    - tar zcvf ../libsodium.tgz *
+    - cd ..
   artifacts:
     paths:
       - libsodium.tgz
