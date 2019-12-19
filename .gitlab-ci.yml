@@ -8,7 +8,7 @@ stages:
 .build-lib-files: &build-lib-files
   only:
     changes:
-      - **
+      - ./**
     refs:
       - stable
 
