@@ -1,8 +1,6 @@
 # Define job order
 stages:
   - build-lib
-  - installer-lib
-  - deploy-lib
   
 # Define library files
 .build-lib-files: &build-lib-files
