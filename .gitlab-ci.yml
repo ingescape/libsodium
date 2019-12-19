@@ -22,7 +22,7 @@ lib-build-macos:
     - mkdir release
     - make prefix=$PWD/release install
     - make prefix=$HOME/builds/release/ingescape/usr/local/ install
-    - cd deploy
+    - cd release
     - tar zcvf ../libsodium.tgz *
     - cd ..
   artifacts:
