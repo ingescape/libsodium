@@ -57,3 +57,28 @@ lib-build-windows:
     - copy /y "bin\Win32\Release\%VS_TOOLS_VERSION%\dynamic\*" "%DEPLOYMENT_WINDOWS_NET_SHARE%\Builds\Release\x86\"
     - copy /y "bin\x64\Debug\%VS_TOOLS_VERSION%\dynamic\*" "%DEPLOYMENT_WINDOWS_NET_SHARE%\Builds\Debug\x64\"
     - copy /y "bin\x64\Release\%VS_TOOLS_VERSION%\dynamic\*" "%DEPLOYMENT_WINDOWS_NET_SHARE%\Builds\Release\x64\"
+
+# Build library for Linux x64
+lib-build-windows:
+  <<: *lib-build-files
+  stage: lib-build
+  image: ingescape/debian-testing-compil
+  tags:
+    - docker
+  script:
+    - ./autogen.sh
+    - ./configure
+    - make
+    - mkdir release
+    - make prefix=$PWD/release install
+    - make prefix=$HOME/builds/release/linux_x64/usr/local/ install
+    - cd release
+    - tar zcvf ../libsodium.tgz *
+    - cd ..
+  artifacts:
+    paths:
+      - libsodium.tgz
+    name: "lib-linux-release-x64"
+    expire_in: 1 day
+  dependencies: []
+ 
