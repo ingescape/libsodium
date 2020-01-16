@@ -22,8 +22,8 @@ lib-build-macos:
     - mkdir release
     - make prefix=$PWD/release install
     - install_name_tool -id @rpath/libsodium.23.dylib $PWD/release/lib/libsodium.dylib
-    - make prefix=$HOME/builds/release/ingescape/usr/local/ install
-    - install_name_tool -id @rpath/libsodium.23.dylib $HOME/uilds/release/ingescape/usr/local/lib/libsodium.dylib
+    - make prefix=$HOME/builds/release/ingescape/usr/local install
+    - install_name_tool -id @rpath/libsodium.23.dylib $HOME/builds/release/ingescape/usr/local/lib/libsodium.dylib
     - cd release
     - tar zcvf ../libsodium.tgz *
     - cd ..
