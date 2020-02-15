@@ -21,7 +21,9 @@ lib-build-macos:
     - make
     - mkdir release
     - make prefix=$PWD/release install
-    - make prefix=$HOME/builds/release/ingescape/usr/local/ install
+    - install_name_tool -id @rpath/libsodium.23.dylib $PWD/release/lib/libsodium.dylib
+    - make prefix=$HOME/builds/release/ingescape/usr/local install
+    - install_name_tool -id @rpath/libsodium.23.dylib $HOME/builds/release/ingescape/usr/local/lib/libsodium.dylib
     - cd release
     - tar zcvf ../libsodium.tgz *
     - cd ..
@@ -31,3 +33,54 @@ lib-build-macos:
     name: "lib-build-macos"
     expire_in: 1 day
   dependencies: []
+  
+  
+# Create library for windows
+# Library will be build for 4 targets : Debug x86, Debug x64, Release x86, Release x64
+lib-build-windows:
+  <<: *lib-build-files
+  stage: lib-build
+  tags:
+    - windows
+  script:
+    - IF "%VS_VERSION_YEAR%"=="" (ECHO ">> VS_VERSION_YEAR must be defined on the Runner side <<" && EXIT /B 1)
+    - IF "%VS_TOOLS_VERSION%"=="" (ECHO ">> VS_TOOLS_VERSION must be defined on the Runner side <<" && EXIT /B 1)
+    - IF "%VS_ENV_SETUP%"=="" (ECHO ">> VS_ENV_SETUP must be defined on the Runner side <<" && EXIT /B 1)
+    - CALL "%VS_ENV_SETUP%" x86
+    - msbuild /m /v:n /p:Configuration=DynDebug /p:Platform=Win32 builds\msvc\vs%VS_VERSION_YEAR%\libsodium.sln
+    - msbuild /m /v:n /p:Configuration=DynRelease /p:Platform=Win32 builds\msvc\vs%VS_VERSION_YEAR%\libsodium.sln
+    - CALL "%VS_ENV_SETUP%" x64
+    - msbuild /m /v:n /p:Configuration=DynDebug /p:Platform=x64 builds\msvc\vs%VS_VERSION_YEAR%\libsodium.sln
+    - msbuild /m /v:n /p:Configuration=DynRelease /p:Platform=x64 builds\msvc\vs%VS_VERSION_YEAR%\libsodium.sln
+    - net use %DEPLOYMENT_WINDOWS_NET_SHARE% /user:%DEPLOYMENT_WINDOWS_USER% %DEPLOYMENT_WINDOWS_PASSWORD%
+    - forfiles /P src\libsodium\include\ /S /C "cmd /c if @isdir==TRUE mkdir %DEPLOYMENT_WINDOWS_NET_SHARE%\Builds\include\\@relpath"
+    - forfiles /P src\libsodium\include\ /S /M *.h /C "cmd /c copy /y @path %DEPLOYMENT_WINDOWS_NET_SHARE%\Builds\include\@relpath"
+    - copy /y "bin\Win32\Debug\%VS_TOOLS_VERSION%\dynamic\*" "%DEPLOYMENT_WINDOWS_NET_SHARE%\Builds\Debug\x86\"
+    - copy /y "bin\Win32\Release\%VS_TOOLS_VERSION%\dynamic\*" "%DEPLOYMENT_WINDOWS_NET_SHARE%\Builds\Release\x86\"
+    - copy /y "bin\x64\Debug\%VS_TOOLS_VERSION%\dynamic\*" "%DEPLOYMENT_WINDOWS_NET_SHARE%\Builds\Debug\x64\"
+    - copy /y "bin\x64\Release\%VS_TOOLS_VERSION%\dynamic\*" "%DEPLOYMENT_WINDOWS_NET_SHARE%\Builds\Release\x64\"
+
+# Build library for Linux x64
+lib-build-linux:
+  <<: *lib-build-files
+  stage: lib-build
+  image: ingescape/debian-testing-compil
+  tags:
+    - docker
+  script:
+    - ./autogen.sh
+    - ./configure
+    - make
+    - mkdir release
+    - make prefix=$PWD/release install
+    - make prefix=$HOME/builds/release/linux_x64/usr/local/ install
+    - cd release
+    - tar zcvf ../libsodium.tgz *
+    - cd ..
+  artifacts:
+    paths:
+      - libsodium.tgz
+    name: "lib-linux-release-x64"
+    expire_in: 1 day
+  dependencies: []
+ 
