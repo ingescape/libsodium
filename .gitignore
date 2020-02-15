@@ -160,3 +160,14 @@ test/default/verify1
 test/default/xchacha20
 test/js.done
 testing
+src/libsodium/libs/libaesni.a
+src/libsodium/libs/libavx2.a
+src/libsodium/libs/libavx512f.a
+src/libsodium/libs/librdrand.a
+src/libsodium/libs/libsodium.23.dylib
+src/libsodium/libs/libsodium.a
+src/libsodium/libs/libsodium.dylib
+src/libsodium/libs/libsodium.lai
+src/libsodium/libs/libsse2.a
+src/libsodium/libs/libsse41.a
+src/libsodium/libs/libssse3.a

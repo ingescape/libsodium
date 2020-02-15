@@ -28,6 +28,6 @@ lib-build-macos:
   artifacts:
     paths:
       - libsodium.tgz
-    name: "lib-macos-release-x64"
+    name: "lib-build-macos"
     expire_in: 1 day
   dependencies: []
