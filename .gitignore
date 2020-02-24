@@ -74,7 +74,6 @@ man/*.html
 man/Makefile.in
 missing
 src/libsodium/*.def
-src/libsodium/include/sodium/version.h
 stamp-*
 test-driver
 test/default/*.asm.js
