@@ -42,10 +42,10 @@ lib-build-windows:
     - IF (!$env:VS_VERSION_YEAR) { ECHO ">> VS_VERSION_YEAR must be defined on the Runner side <<" ; EXIT 1 }
     - IF (!$env:VS_TOOLS_VERSION) { ECHO ">> VS_TOOLS_VERSION must be defined on the Runner side <<" ; EXIT 1 }
     - IF (!$env:VS_ENV_SETUP) { ECHO ">> VS_ENV_SETUP must be defined on the Runner side <<" ; EXIT 1 }
-    - & "$env:VS_ENV_SETUP" x86
+    - "& \"$env:VS_ENV_SETUP\" x86"
     - msbuild /m /v:n /p:Configuration=DynDebug /p:Platform=Win32 builds\msvc\vs$env:VS_VERSION_YEAR\libsodium.sln
     - msbuild /m /v:n /p:Configuration=DynRelease /p:Platform=Win32 builds\msvc\vs$env:VS_VERSION_YEAR\libsodium.sln
-    - & "$env:VS_ENV_SETUP" x64
+    - "& \"$env:VS_ENV_SETUP\" x64"
     - msbuild /m /v:n /p:Configuration=DynDebug /p:Platform=x64 builds\msvc\vs$env:VS_VERSION_YEAR\libsodium.sln
     - msbuild /m /v:n /p:Configuration=DynRelease /p:Platform=x64 builds\msvc\vs$env:VS_VERSION_YEAR\libsodium.sln
     - forfiles /P src\libsodium\include\ /S /C "cmd /c if @isdir==TRUE mkdir %DEPLOYMENT_WINDOWS_NET_SHARE%\Builds\include\\@relpath"
