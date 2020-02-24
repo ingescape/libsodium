@@ -51,6 +51,7 @@ lib-build-windows:
             $v = $_.split("="); set-item -force -path "ENV:\$($v[0])"  -value "$($v[1])"
           }
         }
+        popd
     - msbuild /m /v:n /p:Configuration=DynDebug /p:Platform=Win32 builds\msvc\vs$env:VS_VERSION_YEAR\libsodium.sln
     - msbuild /m /v:n /p:Configuration=DynRelease /p:Platform=Win32 builds\msvc\vs$env:VS_VERSION_YEAR\libsodium.sln
     # Setup dev env from powershell is a bit tricky. We must use the BAT script then opy all env variables to the powershell session
@@ -62,6 +63,7 @@ lib-build-windows:
             $v = $_.split("="); set-item -force -path "ENV:\$($v[0])"  -value "$($v[1])"
           }
         }
+        popd
     - msbuild /m /v:n /p:Configuration=DynDebug /p:Platform=x64 builds\msvc\vs$env:VS_VERSION_YEAR\libsodium.sln
     - msbuild /m /v:n /p:Configuration=DynRelease /p:Platform=x64 builds\msvc\vs$env:VS_VERSION_YEAR\libsodium.sln
     - forfiles /P src\libsodium\include\ /S /C "cmd /c if @isdir==TRUE mkdir %DEPLOYMENT_WINDOWS_NET_SHARE%\Builds\include\\@relpath"
