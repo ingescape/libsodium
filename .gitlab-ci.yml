@@ -48,9 +48,6 @@ lib-build-windows:
     - CALL "$env:VS_ENV_SETUP" x64
     - msbuild /m /v:n /p:Configuration=DynDebug /p:Platform=x64 builds\msvc\vs$env:VS_VERSION_YEAR\libsodium.sln
     - msbuild /m /v:n /p:Configuration=DynRelease /p:Platform=x64 builds\msvc\vs$env:VS_VERSION_YEAR\libsodium.sln
-    - $file_list = Get-ChildItem -Path .\src\libsodium\include\ -Recurse | where { $_.PSIsContainer -or $_.Name -match ".h$" } |
-      if ($_.Attributes -eq "Directory") {
-        md $env:$_
     - forfiles /P src\libsodium\include\ /S /C "cmd /c if @isdir==TRUE mkdir %DEPLOYMENT_WINDOWS_NET_SHARE%\Builds\include\\@relpath"
     - forfiles /P src\libsodium\include\ /S /M *.h /C "cmd /c copy /y @path %DEPLOYMENT_WINDOWS_NET_SHARE%\Builds\include\@relpath"
     - copy "bin\Win32\Debug\$env:VS_TOOLS_VERSION\dynamic\*" "$env:DEPLOYMENT_WINDOWS_NET_SHARE\Builds\Debug\x86\" -Force
