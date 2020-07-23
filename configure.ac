@@ -44,6 +44,10 @@ AS_IF([pwd | fgrep ' ' > /dev/null 2>&1],
   [AC_MSG_ERROR([The build directory contains whitespaces - This can cause tests/installation to fail due to limitations of some libtool versions])]
 )
 
+AC_PROG_CC_C99
+AM_PROG_AS
+AC_USE_SYSTEM_EXTENSIONS
+
 dnl Switches
 
 AC_ARG_ENABLE(ssp,
@@ -87,7 +91,7 @@ AC_ARG_ENABLE(pie,
 [AS_HELP_STRING(--disable-pie,Do not produce position independent executables)],
  enable_pie=$enableval, enable_pie="maybe")
 
-AS_CASE([$host_os], [mingw*|cygwin*|msys], [enable_pie="no"])
+AS_CASE([$host_os], [mingw*|cygwin*|msys|eabi*], [enable_pie="no"])
 
 AC_ARG_ENABLE(blocking-random,
 [AS_HELP_STRING(--enable-blocking-random,Enable this switch only if /dev/urandom is totally broken on the target platform)],
@@ -210,9 +214,6 @@ AX_VALGRIND_CHECK
 
 dnl Checks
 
-AC_PROG_CC_C99
-AM_PROG_AS
-AC_USE_SYSTEM_EXTENSIONS
 AC_C_VARARRAYS
 
 AC_CHECK_DEFINE([__wasi__], [WASI="yes"], [])
@@ -222,7 +223,7 @@ AS_CASE([$host_os], [linux-gnu], [AX_ADD_FORTIFY_SOURCE], [ ])
 AX_CHECK_COMPILE_FLAG([-fvisibility=hidden],
   [CFLAGS="$CFLAGS -fvisibility=hidden"])
 
-AS_CASE([$host_os], [cygwin*|mingw*|msys|pw32*|cegcc*], [ ], [
+AS_CASE([$host_os], [cygwin*|mingw*|msys|pw32*|cegcc*|eabi*], [ ], [
   AX_CHECK_COMPILE_FLAG([-fPIC], [CFLAGS="$CFLAGS -fPIC"])
 ])
 
@@ -275,7 +276,7 @@ AS_CASE([$host_os],
   ])
 
 AS_CASE([$host_os],
-  [cygwin*|mingw*|msys|pw32*|cegcc*], [
+  [cygwin*|mingw*|msys|pw32*|cegcc*|eabi*], [
     AX_CHECK_COMPILE_FLAG([-fno-asynchronous-unwind-tables], [
       [CFLAGS="$CFLAGS -fno-asynchronous-unwind-tables"]
     ])
@@ -301,7 +302,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[
 AS_IF([test "x$enable_ssp" != "xno"],[
 
 AS_CASE([$host_os],
-  [cygwin*|mingw*|msys|pw32*|cegcc*|haiku|none], [ ],
+  [cygwin*|mingw*|msys|pw32*|cegcc*|haiku|none|eabi*], [ ],
   [*], [
     AX_CHECK_COMPILE_FLAG([-fstack-protector], [
       AX_CHECK_LINK_FLAG([-fstack-protector],
@@ -357,9 +358,11 @@ AX_CHECK_COMPILE_FLAG([$CWFLAGS -Wswitch-enum], [CWFLAGS="$CWFLAGS -Wswitch-enum
 AX_CHECK_COMPILE_FLAG([$CWFLAGS -Wvariable-decl], [CWFLAGS="$CWFLAGS -Wvariable-decl"])
 AX_CHECK_COMPILE_FLAG([$CWFLAGS -Wwrite-strings], [CWFLAGS="$CWFLAGS -Wwrite-strings"])
 
-AX_CHECK_LINK_FLAG([-Wl,-z,relro], [LDFLAGS="$LDFLAGS -Wl,-z,relro"])
-AX_CHECK_LINK_FLAG([-Wl,-z,now], [LDFLAGS="$LDFLAGS -Wl,-z,now"])
-AX_CHECK_LINK_FLAG([-Wl,-z,noexecstack], [LDFLAGS="$LDFLAGS -Wl,-z,noexecstack"])
+AS_IF([test "x$EMSCRIPTEN" = "x"], [
+  AX_CHECK_LINK_FLAG([-Wl,-z,relro], [LDFLAGS="$LDFLAGS -Wl,-z,relro"])
+  AX_CHECK_LINK_FLAG([-Wl,-z,now], [LDFLAGS="$LDFLAGS -Wl,-z,now"])
+  AX_CHECK_LINK_FLAG([-Wl,-z,noexecstack], [LDFLAGS="$LDFLAGS -Wl,-z,noexecstack"])
+])
 
 AX_CHECK_CATCHABLE_SEGV
 AX_CHECK_CATCHABLE_ABRT
