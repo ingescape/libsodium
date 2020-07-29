@@ -200,12 +200,10 @@ HEADERS += \
     $$PWD/../../src/libsodium/crypto_scalarmult/curve25519/sandy2x/consts_namespace.h \
     $$PWD/../../src/libsodium/crypto_scalarmult/curve25519/sandy2x/ladder_namespace.h \
     $$PWD/../../src/libsodium/crypto_scalarmult/curve25519/sandy2x/fe.h \
-    $$PWD/../../src/libsodium/crypto_scalarmult/curve25519/sandy2x/ladder_base_namespace.h \
     $$PWD/../../src/libsodium/crypto_scalarmult/curve25519/sandy2x/ladder.h \
     $$PWD/../../src/libsodium/crypto_scalarmult/curve25519/sandy2x/fe51.h \
     $$PWD/../../src/libsodium/crypto_scalarmult/curve25519/sandy2x/curve25519_sandy2x.h \
     $$PWD/../../src/libsodium/crypto_scalarmult/curve25519/sandy2x/fe51_namespace.h \
-    $$PWD/../../src/libsodium/crypto_scalarmult/curve25519/sandy2x/ladder_base.h \
     $$PWD/../../src/libsodium/crypto_scalarmult/curve25519/ref10/x25519_ref10.h \
     $$PWD/../../src/libsodium/crypto_scalarmult/curve25519/scalarmult_curve25519.h \
     $$PWD/../../src/libsodium/crypto_onetimeauth/poly1305/donna/poly1305_donna.h \

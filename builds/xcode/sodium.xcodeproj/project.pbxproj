@@ -66,7 +66,6 @@
 		97175315249139B4005B2CFB /* ladder.S in Sources */ = {isa = PBXBuildFile; fileRef = 9717521D249139B3005B2CFB /* ladder.S */; };
 		97175316249139B4005B2CFB /* fe51_pack.S in Sources */ = {isa = PBXBuildFile; fileRef = 9717521E249139B3005B2CFB /* fe51_pack.S */; };
 		9717531A249139B4005B2CFB /* fe51_invert.c in Sources */ = {isa = PBXBuildFile; fileRef = 97175223249139B3005B2CFB /* fe51_invert.c */; };
-		9717531C249139B4005B2CFB /* ladder_base.S in Sources */ = {isa = PBXBuildFile; fileRef = 97175225249139B3005B2CFB /* ladder_base.S */; };
 		9717531E249139B4005B2CFB /* scalarmult_curve25519.c in Sources */ = {isa = PBXBuildFile; fileRef = 97175227249139B3005B2CFB /* scalarmult_curve25519.c */; };
 		9717531F249139B4005B2CFB /* x25519_ref10.c in Sources */ = {isa = PBXBuildFile; fileRef = 97175229249139B3005B2CFB /* x25519_ref10.c */; };
 		97175322249139B4005B2CFB /* crypto_shorthash.c in Sources */ = {isa = PBXBuildFile; fileRef = 97175230249139B3005B2CFB /* crypto_shorthash.c */; };
@@ -220,7 +219,6 @@
 		9717555624913DA4005B2CFB /* fe51_mul.S in Sources */ = {isa = PBXBuildFile; fileRef = 97175219249139B3005B2CFB /* fe51_mul.S */; };
 		9717555724913DA4005B2CFB /* consts.S in Sources */ = {isa = PBXBuildFile; fileRef = 9717521A249139B3005B2CFB /* consts.S */; };
 		9717555824913DA4005B2CFB /* fe.h in Sources */ = {isa = PBXBuildFile; fileRef = 9717521B249139B3005B2CFB /* fe.h */; };
-		9717555924913DA4005B2CFB /* ladder_base_namespace.h in Sources */ = {isa = PBXBuildFile; fileRef = 9717521C249139B3005B2CFB /* ladder_base_namespace.h */; };
 		9717555A24913DA4005B2CFB /* ladder.S in Sources */ = {isa = PBXBuildFile; fileRef = 9717521D249139B3005B2CFB /* ladder.S */; };
 		9717555B24913DA4005B2CFB /* fe51_pack.S in Sources */ = {isa = PBXBuildFile; fileRef = 9717521E249139B3005B2CFB /* fe51_pack.S */; };
 		9717555C24913DA4005B2CFB /* ladder.h in Sources */ = {isa = PBXBuildFile; fileRef = 9717521F249139B3005B2CFB /* ladder.h */; };
@@ -228,8 +226,6 @@
 		9717555E24913DA4005B2CFB /* curve25519_sandy2x.h in Sources */ = {isa = PBXBuildFile; fileRef = 97175222249139B3005B2CFB /* curve25519_sandy2x.h */; };
 		9717555F24913DA4005B2CFB /* fe51_invert.c in Sources */ = {isa = PBXBuildFile; fileRef = 97175223249139B3005B2CFB /* fe51_invert.c */; };
 		9717556024913DA4005B2CFB /* fe51_namespace.h in Sources */ = {isa = PBXBuildFile; fileRef = 97175224249139B3005B2CFB /* fe51_namespace.h */; };
-		9717556124913DA4005B2CFB /* ladder_base.S in Sources */ = {isa = PBXBuildFile; fileRef = 97175225249139B3005B2CFB /* ladder_base.S */; };
-		9717556224913DA4005B2CFB /* ladder_base.h in Sources */ = {isa = PBXBuildFile; fileRef = 97175226249139B3005B2CFB /* ladder_base.h */; };
 		9717556324913DA4005B2CFB /* scalarmult_curve25519.c in Sources */ = {isa = PBXBuildFile; fileRef = 97175227249139B3005B2CFB /* scalarmult_curve25519.c */; };
 		9717556424913DA4005B2CFB /* x25519_ref10.c in Sources */ = {isa = PBXBuildFile; fileRef = 97175229249139B3005B2CFB /* x25519_ref10.c */; };
 		9717556524913DA4005B2CFB /* x25519_ref10.h in Sources */ = {isa = PBXBuildFile; fileRef = 9717522A249139B3005B2CFB /* x25519_ref10.h */; };
@@ -458,7 +454,6 @@
 		97175219249139B3005B2CFB /* fe51_mul.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = fe51_mul.S; sourceTree = "<group>"; };
 		9717521A249139B3005B2CFB /* consts.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = consts.S; sourceTree = "<group>"; };
 		9717521B249139B3005B2CFB /* fe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fe.h; sourceTree = "<group>"; };
-		9717521C249139B3005B2CFB /* ladder_base_namespace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ladder_base_namespace.h; sourceTree = "<group>"; };
 		9717521D249139B3005B2CFB /* ladder.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = ladder.S; sourceTree = "<group>"; };
 		9717521E249139B3005B2CFB /* fe51_pack.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = fe51_pack.S; sourceTree = "<group>"; };
 		9717521F249139B3005B2CFB /* ladder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ladder.h; sourceTree = "<group>"; };
@@ -466,8 +461,6 @@
 		97175222249139B3005B2CFB /* curve25519_sandy2x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = curve25519_sandy2x.h; sourceTree = "<group>"; };
 		97175223249139B3005B2CFB /* fe51_invert.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fe51_invert.c; sourceTree = "<group>"; };
 		97175224249139B3005B2CFB /* fe51_namespace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fe51_namespace.h; sourceTree = "<group>"; };
-		97175225249139B3005B2CFB /* ladder_base.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = ladder_base.S; sourceTree = "<group>"; };
-		97175226249139B3005B2CFB /* ladder_base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ladder_base.h; sourceTree = "<group>"; };
 		97175227249139B3005B2CFB /* scalarmult_curve25519.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = scalarmult_curve25519.c; sourceTree = "<group>"; };
 		97175229249139B3005B2CFB /* x25519_ref10.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = x25519_ref10.c; sourceTree = "<group>"; };
 		9717522A249139B3005B2CFB /* x25519_ref10.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x25519_ref10.h; sourceTree = "<group>"; };
@@ -1143,7 +1136,6 @@
 				97175219249139B3005B2CFB /* fe51_mul.S */,
 				9717521A249139B3005B2CFB /* consts.S */,
 				9717521B249139B3005B2CFB /* fe.h */,
-				9717521C249139B3005B2CFB /* ladder_base_namespace.h */,
 				9717521D249139B3005B2CFB /* ladder.S */,
 				9717521E249139B3005B2CFB /* fe51_pack.S */,
 				9717521F249139B3005B2CFB /* ladder.h */,
@@ -1151,8 +1143,6 @@
 				97175222249139B3005B2CFB /* curve25519_sandy2x.h */,
 				97175223249139B3005B2CFB /* fe51_invert.c */,
 				97175224249139B3005B2CFB /* fe51_namespace.h */,
-				97175225249139B3005B2CFB /* ladder_base.S */,
-				97175226249139B3005B2CFB /* ladder_base.h */,
 			);
 			path = sandy2x;
 			sourceTree = "<group>";
@@ -1801,7 +1791,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				97175354249139B4005B2CFB /* onetimeauth_poly1305.c in Sources */,
-				9717531C249139B4005B2CFB /* ladder_base.S in Sources */,
 				97175332249139B4005B2CFB /* crypto_pwhash.c in Sources */,
 				971752D9249139B4005B2CFB /* crypto_box_easy.c in Sources */,
 				97175368249139B4005B2CFB /* hash_sha256.c in Sources */,
@@ -2020,7 +2009,6 @@
 				9717555624913DA4005B2CFB /* fe51_mul.S in Sources */,
 				9717555724913DA4005B2CFB /* consts.S in Sources */,
 				9717555824913DA4005B2CFB /* fe.h in Sources */,
-				9717555924913DA4005B2CFB /* ladder_base_namespace.h in Sources */,
 				9717555A24913DA4005B2CFB /* ladder.S in Sources */,
 				9717555B24913DA4005B2CFB /* fe51_pack.S in Sources */,
 				9717555C24913DA4005B2CFB /* ladder.h in Sources */,
@@ -2028,8 +2016,6 @@
 				9717555E24913DA4005B2CFB /* curve25519_sandy2x.h in Sources */,
 				9717555F24913DA4005B2CFB /* fe51_invert.c in Sources */,
 				9717556024913DA4005B2CFB /* fe51_namespace.h in Sources */,
-				9717556124913DA4005B2CFB /* ladder_base.S in Sources */,
-				9717556224913DA4005B2CFB /* ladder_base.h in Sources */,
 				9717556324913DA4005B2CFB /* scalarmult_curve25519.c in Sources */,
 				9717556424913DA4005B2CFB /* x25519_ref10.c in Sources */,
 				9717556524913DA4005B2CFB /* x25519_ref10.h in Sources */,
