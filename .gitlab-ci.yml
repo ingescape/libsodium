@@ -112,6 +112,7 @@ lib-build-centos-qt:
     - ./configure
     - make
     - make prefix=/builds/sysroot/usr/local/ install
+    - cp -rp /builds/sysroot/usr/local/lib/libsodium* /builds/sysroot/usr/local/lib64
   dependencies: []
   only:
     refs:
