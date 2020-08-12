@@ -101,4 +101,19 @@ lib-build-linux:
   only:
     refs:
       - stable
+
+# Build library for Linux x64 on CentOS Qt
+lib-build-centos-qt:
+  stage: lib-build
+  tags:
+    - centos-qt
+  script:
+    - ./autogen.sh
+    - ./configure
+    - make
+    - make prefix=/builds/sysroot/usr/local/ install
+  dependencies: []
+  only:
+    refs:
+      - stable
  
