@@ -1,3 +1,6 @@
+win32 {
+    DEFINES += SODIUM_STATIC
+}
 
 SOURCES += \
     $$PWD/../../src/libsodium/crypto_generichash/blake2b/ref/blake2b-compress-ref.c \
