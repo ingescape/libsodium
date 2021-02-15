@@ -69,9 +69,13 @@ lib-build-windows:
     - forfiles /P src\libsodium\include\ /S /C "cmd /c if @isdir==TRUE mkdir %DEPLOYMENT_WINDOWS_NET_SHARE%\Builds\include\\@relpath"
     - forfiles /P src\libsodium\include\ /S /M *.h /C "cmd /c copy /y @path %DEPLOYMENT_WINDOWS_NET_SHARE%\Builds\include\@relpath"
     - copy "bin\Win32\Debug\$env:VS_TOOLS_VERSION\dynamic\*" "$env:DEPLOYMENT_WINDOWS_NET_SHARE\Builds\Debug\x86\" -Force
+    - copy "bin\Win32\Debug\$env:VS_TOOLS_VERSION\dynamic\*" "$env:DEPLOYMENT_WINDOWS_NET_SHARE\Builds\Debug\x86\lib\" -Force
     - copy "bin\Win32\Release\$env:VS_TOOLS_VERSION\dynamic\*" "$env:DEPLOYMENT_WINDOWS_NET_SHARE\Builds\Release\x86\" -Force
+    - copy "bin\Win32\Release\$env:VS_TOOLS_VERSION\dynamic\*" "$env:DEPLOYMENT_WINDOWS_NET_SHARE\Builds\Release\x86\lib\" -Force
     - copy "bin\x64\Debug\$env:VS_TOOLS_VERSION\dynamic\*" "$env:DEPLOYMENT_WINDOWS_NET_SHARE\Builds\Debug\x64\" -Force
+    - copy "bin\x64\Debug\$env:VS_TOOLS_VERSION\dynamic\*" "$env:DEPLOYMENT_WINDOWS_NET_SHARE\Builds\Debug\x64\lib\" -Force
     - copy "bin\x64\Release\$env:VS_TOOLS_VERSION\dynamic\*" "$env:DEPLOYMENT_WINDOWS_NET_SHARE\Builds\Release\x64\" -Force
+    - copy "bin\x64\Release\$env:VS_TOOLS_VERSION\dynamic\*" "$env:DEPLOYMENT_WINDOWS_NET_SHARE\Builds\Release\x64\lib\" -Force
   only:
     refs:
       - stable
