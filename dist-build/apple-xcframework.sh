@@ -6,12 +6,17 @@ export MACOS_X86_64_PREFIX="${PREFIX}/tmp/macos-x86_64"
 export IOS32_PREFIX="${PREFIX}/tmp/ios32"
 export IOS32s_PREFIX="${PREFIX}/tmp/ios32s"
 export IOS64_PREFIX="${PREFIX}/tmp/ios64"
+export IOS_SIMULATOR_ARM64_PREFIX="${PREFIX}/tmp/ios-simulator-arm64"
 export IOS_SIMULATOR_I386_PREFIX="${PREFIX}/tmp/ios-simulator-i386"
 export IOS_SIMULATOR_X86_64_PREFIX="${PREFIX}/tmp/ios-simulator-x86_64"
 export WATCHOS32_PREFIX="${PREFIX}/tmp/watchos32"
 export WATCHOS64_32_PREFIX="${PREFIX}/tmp/watchos64_32"
+export WATCHOS_SIMULATOR_ARM64_PREFIX="${PREFIX}/tmp/watchos-simulator-arm64"
 export WATCHOS_SIMULATOR_I386_PREFIX="${PREFIX}/tmp/watchos-simulator-i386"
 export WATCHOS_SIMULATOR_X86_64_PREFIX="${PREFIX}/tmp/watchos-simulator-x86_64"
+export TVOS64_PREFIX="${PREFIX}/tmp/tvos64"
+export TVOS_SIMULATOR_ARM64_PREFIX="${PREFIX}/tmp/tvos-simulator-arm64"
+export TVOS_SIMULATOR_X86_64_PREFIX="${PREFIX}/tmp/tvos-simulator-x86_64"
 export CATALYST_ARM64_PREFIX="${PREFIX}/tmp/catalyst-arm64"
 export CATALYST_X86_64_PREFIX="${PREFIX}/tmp/catalyst-x86_64"
 export LOG_FILE="${PREFIX}/tmp/build_log"
@@ -22,6 +27,8 @@ export IOS_SIMULATOR_VERSION_MIN=${IOS_SIMULATOR_VERSION_MIN-"9.0.0"}
 export IOS_VERSION_MIN=${IOS_VERSION_MIN-"9.0.0"}
 export WATCHOS_SIMULATOR_VERSION_MIN=${WATCHOS_SIMULATOR_VERSION_MIN-"4.0.0"}
 export WATCHOS_VERSION_MIN=${WATCHOS_VERSION_MIN-"4.0.0"}
+export TVOS_SIMULATOR_VERSION_MIN=${TVOS_SIMULATOR_VERSION_MIN-"9.0.0"}
+export TVOS_VERSION_MIN=${TVOS_VERSION_MIN-"9.0.0"}
 
 echo
 echo "Warnings related to headers being present but not usable are due to functions"
@@ -112,9 +119,20 @@ build_ios_simulator() {
   export PATH="${BASEDIR}/usr/bin:$BASEDIR/usr/sbin:$PATH"
   export SDK="${BASEDIR}/SDKs/iPhoneSimulator.sdk"
 
+  ## arm64 simulator
+  if [ "$APPLE_SILICON_SUPPORTED" = "true" ]; then
+    export CFLAGS="-fembed-bitcode -O2 -arch arm64 -isysroot ${SDK} -mios-simulator-version-min=${IOS_SIMULATOR_VERSION_MIN}"
+    export LDFLAGS="-fembed-bitcode -arch arm64 -isysroot ${SDK} -mios-simulator-version-min=${IOS_SIMULATOR_VERSION_MIN}"
+
+    make distclean >/dev/null 2>&1
+    ./configure --host=arm-apple-darwin20 --prefix="$IOS_SIMULATOR_ARM64_PREFIX" \
+      ${LIBSODIUM_ENABLE_MINIMAL_FLAG} || exit 1
+    make -j${PROCESSORS} install || exit 1
+  fi
+
   ## i386 simulator
-  export CFLAGS="-O2 -arch i386 -isysroot ${SDK} -mios-simulator-version-min=${IOS_SIMULATOR_VERSION_MIN}"
-  export LDFLAGS="-arch i386 -isysroot ${SDK} -mios-simulator-version-min=${IOS_SIMULATOR_VERSION_MIN}"
+  export CFLAGS="-fembed-bitcode -O2 -arch i386 -isysroot ${SDK} -mios-simulator-version-min=${IOS_SIMULATOR_VERSION_MIN}"
+  export LDFLAGS="-fembed-bitcode -arch i386 -isysroot ${SDK} -mios-simulator-version-min=${IOS_SIMULATOR_VERSION_MIN}"
 
   make distclean >/dev/null 2>&1
   ./configure --host=i686-apple-darwin10 --prefix="$IOS_SIMULATOR_I386_PREFIX" \
@@ -122,8 +140,8 @@ build_ios_simulator() {
   make -j${PROCESSORS} install || exit 1
 
   ## x86_64 simulator
-  export CFLAGS="-O2 -arch x86_64 -isysroot ${SDK} -mios-simulator-version-min=${IOS_SIMULATOR_VERSION_MIN}"
-  export LDFLAGS="-arch x86_64 -isysroot ${SDK} -mios-simulator-version-min=${IOS_SIMULATOR_VERSION_MIN}"
+  export CFLAGS="-fembed-bitcode -O2 -arch x86_64 -isysroot ${SDK} -mios-simulator-version-min=${IOS_SIMULATOR_VERSION_MIN}"
+  export LDFLAGS="-fembed-bitcode -arch x86_64 -isysroot ${SDK} -mios-simulator-version-min=${IOS_SIMULATOR_VERSION_MIN}"
 
   make distclean >/dev/null 2>&1
   ./configure --host=x86_64-apple-darwin10 --prefix="$IOS_SIMULATOR_X86_64_PREFIX" \
@@ -160,9 +178,20 @@ build_watchos_simulator() {
   export PATH="${BASEDIR}/usr/bin:$BASEDIR/usr/sbin:$PATH"
   export SDK="${BASEDIR}/SDKs/WatchSimulator.sdk"
 
+  ## arm64 simulator
+  if [ "$APPLE_SILICON_SUPPORTED" = "true" ]; then
+    export CFLAGS="-fembed-bitcode -O2 -arch arm64 -isysroot ${SDK} -mwatchos-simulator-version-min=${WATCHOS_SIMULATOR_VERSION_MIN}"
+    export LDFLAGS="-fembed-bitcode -arch arm64 -isysroot ${SDK} -mwatchos-simulator-version-min=${WATCHOS_SIMULATOR_VERSION_MIN}"
+
+    make distclean >/dev/null 2>&1
+    ./configure --host=arm-apple-darwin20 --prefix="$WATCHOS_SIMULATOR_ARM64_PREFIX" \
+      ${LIBSODIUM_ENABLE_MINIMAL_FLAG} || exit 1
+    make -j${PROCESSORS} install || exit 1
+  fi
+
   ## i386 simulator
-  export CFLAGS="-O2 -arch i386 -isysroot ${SDK} -mwatchos-simulator-version-min=${WATCHOS_SIMULATOR_VERSION_MIN}"
-  export LDFLAGS="-arch i386 -isysroot ${SDK} -mwatchos-simulator-version-min=${WATCHOS_SIMULATOR_VERSION_MIN}"
+  export CFLAGS="-fembed-bitcode -O2 -arch i386 -isysroot ${SDK} -mwatchos-simulator-version-min=${WATCHOS_SIMULATOR_VERSION_MIN}"
+  export LDFLAGS="-fembed-bitcode -arch i386 -isysroot ${SDK} -mwatchos-simulator-version-min=${WATCHOS_SIMULATOR_VERSION_MIN}"
 
   make distclean >/dev/null 2>&1
   ./configure --host=i686-apple-darwin10 --prefix="$WATCHOS_SIMULATOR_I386_PREFIX" \
@@ -170,12 +199,53 @@ build_watchos_simulator() {
   make -j${PROCESSORS} install || exit 1
 
   ## x86_64 simulator
-  export CFLAGS="-O2 -arch x86_64 -isysroot ${SDK} -mwatchos-simulator-version-min=${WATCHOS_SIMULATOR_VERSION_MIN}"
-  export LDFLAGS="-arch x86_64 -isysroot ${SDK} -mwatchos-simulator-version-min=${WATCHOS_SIMULATOR_VERSION_MIN}"
+  export CFLAGS="-fembed-bitcode -O2 -arch x86_64 -isysroot ${SDK} -mwatchos-simulator-version-min=${WATCHOS_SIMULATOR_VERSION_MIN}"
+  export LDFLAGS="-fembed-bitcode -arch x86_64 -isysroot ${SDK} -mwatchos-simulator-version-min=${WATCHOS_SIMULATOR_VERSION_MIN}"
 
   make distclean >/dev/null 2>&1
   ./configure --host=x86_64-apple-darwin10 --prefix="$WATCHOS_SIMULATOR_X86_64_PREFIX" \
     ${LIBSODIUM_ENABLE_MINIMAL_FLAG} || exit 1
+  make -j${PROCESSORS} install || exit 1
+}
+
+build_tvos() {
+  export BASEDIR="${XCODEDIR}/Platforms/AppleTVOS.platform/Developer"
+  export PATH="${BASEDIR}/usr/bin:$BASEDIR/usr/sbin:$PATH"
+  export SDK="${BASEDIR}/SDKs/AppleTVOS.sdk"
+
+  ## 64-bit tvOS
+  export CFLAGS="-fembed-bitcode -O2 -arch arm64 -isysroot ${SDK} -mtvos-version-min=${TVOS_VERSION_MIN}"
+  export LDFLAGS="-fembed-bitcode -arch arm64 -isysroot ${SDK} -mtvos-version-min=${TVOS_VERSION_MIN}"
+
+  make distclean >/dev/null 2>&1
+  ./configure --host=arm-apple-darwin10 --prefix="$TVOS64_PREFIX" \
+    ${LIBSODIUM_ENABLE_MINIMAL_FLAG} || exit 1
+  make -j${PROCESSORS} install || exit 1
+}
+
+build_tvos_simulator() {
+  export BASEDIR="${XCODEDIR}/Platforms/AppleTVSimulator.platform/Developer"
+  export PATH="${BASEDIR}/usr/bin:$BASEDIR/usr/sbin:$PATH"
+  export SDK="${BASEDIR}/SDKs/AppleTVSimulator.sdk"
+
+  ## arm64 simulator
+  if [ "$APPLE_SILICON_SUPPORTED" = "true" ]; then
+    export CFLAGS="-fembed-bitcode -O2 -arch arm64 -isysroot ${SDK} -mtvos-simulator-version-min=${TVOS_SIMULATOR_VERSION_MIN}"
+    export LDFLAGS="-fembed-bitcode -arch arm64 -isysroot ${SDK} -mtvos-simulator-version-min=${TVOS_SIMULATOR_VERSION_MIN}"
+
+    make distclean >/dev/null 2>&1
+    ./configure --host=arm-apple-darwin20 --prefix="$TVOS_SIMULATOR_ARM64_PREFIX" \
+      ${LIBSODIUM_ENABLE_MINIMAL_FLAG} || exit 1
+    make -j${PROCESSORS} install || exit 1
+  fi
+
+  ## x86_64 simulator
+  export CFLAGS="-fembed-bitcode -O2 -arch x86_64 -isysroot ${SDK} -mtvos-simulator-version-min=${TVOS_SIMULATOR_VERSION_MIN}"
+  export LDFLAGS="-fembed-bitcode -arch x86_64 -isysroot ${SDK} -mtvos-simulator-version-min=${TVOS_SIMULATOR_VERSION_MIN}"
+
+  make distclean >/dev/null 2>&1
+  ./configure --host=x86_64-apple-darwin10 --prefix="$TVOS_SIMULATOR_X86_64_PREFIX" \
+    ${LIBSODIUM_ENABLE_MINIMAL_FLAG}
   make -j${PROCESSORS} install || exit 1
 }
 
@@ -216,6 +286,10 @@ echo "Building for watchOS..."
 build_watchos >"$LOG_FILE" 2>&1 || exit 1
 echo "Building for the watchOS simulator..."
 build_watchos_simulator >"$LOG_FILE" 2>&1 || exit 1
+echo "Building for tvOS..."
+build_tvos >"$LOG_FILE" 2>&1 || exit 1
+echo "Building for the tvOS simulator..."
+build_tvos_simulator >"$LOG_FILE" 2>&1 || exit 1
 echo "Building for Catalyst..."
 build_catalyst >"$LOG_FILE" 2>&1 || exit 1
 
@@ -259,10 +333,18 @@ echo "Bundling iOS simulators..."
 mkdir -p "${PREFIX}/ios-simulators/lib"
 cp -a "${IOS_SIMULATOR_X86_64_PREFIX}/include" "${PREFIX}/ios-simulators/"
 for ext in a dylib; do
-  lipo -create \
-    "${IOS_SIMULATOR_I386_PREFIX}/lib/libsodium.${ext}" \
-    "${IOS_SIMULATOR_X86_64_PREFIX}/lib/libsodium.${ext}" \
-    -output "${PREFIX}/ios-simulators/lib/libsodium.${ext}" || exit 1
+  if [ "$APPLE_SILICON_SUPPORTED" = "true" ]; then
+    lipo -create \
+      "${IOS_SIMULATOR_ARM64_PREFIX}/lib/libsodium.${ext}" \
+      "${IOS_SIMULATOR_I386_PREFIX}/lib/libsodium.${ext}" \
+      "${IOS_SIMULATOR_X86_64_PREFIX}/lib/libsodium.${ext}" \
+      -output "${PREFIX}/ios-simulators/lib/libsodium.${ext}" || exit 1
+  else
+    lipo -create \
+      "${IOS_SIMULATOR_I386_PREFIX}/lib/libsodium.${ext}" \
+      "${IOS_SIMULATOR_X86_64_PREFIX}/lib/libsodium.${ext}" \
+      -output "${PREFIX}/ios-simulators/lib/libsodium.${ext}" || exit 1
+  fi
 done
 
 echo "Bundling watchOS targets..."
@@ -281,10 +363,45 @@ echo "Bundling watchOS simulators..."
 mkdir -p "${PREFIX}/watchos-simulators/lib"
 cp -a "${WATCHOS_SIMULATOR_X86_64_PREFIX}/include" "${PREFIX}/watchos-simulators/"
 for ext in a dylib; do
+  if [ "$APPLE_SILICON_SUPPORTED" = "true" ]; then
+    lipo -create \
+      "${WATCHOS_SIMULATOR_ARM64_PREFIX}/lib/libsodium.${ext}" \
+      "${WATCHOS_SIMULATOR_I386_PREFIX}/lib/libsodium.${ext}" \
+      "${WATCHOS_SIMULATOR_X86_64_PREFIX}/lib/libsodium.${ext}" \
+      -output "${PREFIX}/watchos-simulators/lib/libsodium.${ext}"
+  else
+    lipo -create \
+      "${WATCHOS_SIMULATOR_I386_PREFIX}/lib/libsodium.${ext}" \
+      "${WATCHOS_SIMULATOR_X86_64_PREFIX}/lib/libsodium.${ext}" \
+      -output "${PREFIX}/watchos-simulators/lib/libsodium.${ext}"
+  fi
+done
+
+echo "Bundling tvOS targets..."
+
+mkdir -p "${PREFIX}/tvos/lib"
+cp -a "${TVOS64_PREFIX}/include" "${PREFIX}/tvos/"
+for ext in a dylib; do
   lipo -create \
-    "${WATCHOS_SIMULATOR_I386_PREFIX}/lib/libsodium.${ext}" \
-    "${WATCHOS_SIMULATOR_X86_64_PREFIX}/lib/libsodium.${ext}" \
-    -output "${PREFIX}/watchos-simulators/lib/libsodium.${ext}"
+    "$TVOS64_PREFIX/lib/libsodium.${ext}" \
+    -output "$PREFIX/tvos/lib/libsodium.${ext}"
+done
+
+echo "Bundling tvOS simulators..."
+
+mkdir -p "${PREFIX}/tvos-simulators/lib"
+cp -a "${TVOS_SIMULATOR_X86_64_PREFIX}/include" "${PREFIX}/tvos-simulators/"
+for ext in a dylib; do
+  if [ "$APPLE_SILICON_SUPPORTED" = "true" ]; then
+    lipo -create \
+      "${TVOS_SIMULATOR_ARM64_PREFIX}/lib/libsodium.${ext}" \
+      "${TVOS_SIMULATOR_X86_64_PREFIX}/lib/libsodium.${ext}" \
+      -output "${PREFIX}/tvos-simulators/lib/libsodium.${ext}" || exit 1
+  else
+    lipo -create \
+      "${TVOS_SIMULATOR_X86_64_PREFIX}/lib/libsodium.${ext}" \
+      -output "${PREFIX}/tvos-simulators/lib/libsodium.${ext}" || exit 1
+  fi
 done
 
 echo "Bundling Catalyst targets..."
@@ -292,6 +409,9 @@ echo "Bundling Catalyst targets..."
 mkdir -p "${PREFIX}/catalyst/lib"
 cp -a "${CATALYST_X86_64_PREFIX}/include" "${PREFIX}/catalyst/"
 for ext in a dylib; do
+  if [ ! -f "${CATALYST_X86_64_PREFIX}/lib/libsodium.${ext}" ]; then
+    continue
+  fi
   if [ "$APPLE_SILICON_SUPPORTED" = "true" ]; then
     lipo -create \
       "${CATALYST_ARM64_PREFIX}/lib/libsodium.${ext}" \
@@ -309,7 +429,7 @@ echo "Creating Clibsodium.xcframework..."
 rm -rf "${PREFIX}/Clibsodium.xcframework"
 
 XCFRAMEWORK_ARGS=""
-for f in macos ios ios-simulators watchos watchos-simulators catalyst; do
+for f in macos ios ios-simulators watchos watchos-simulators tvos tvos-simulators catalyst; do
   XCFRAMEWORK_ARGS="${XCFRAMEWORK_ARGS} -library ${PREFIX}/${f}/lib/libsodium.a"
   XCFRAMEWORK_ARGS="${XCFRAMEWORK_ARGS} -headers ${PREFIX}/${f}/include"
 done
