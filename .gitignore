@@ -36,6 +36,7 @@ android-toolchain
 android-toolchain-*
 autom4te.cache
 build
+builds/xcode
 compile
 confdefs.h
 config.*
@@ -170,6 +171,5 @@ src/libsodium/libs/libsodium.lai
 src/libsodium/libs/libsse2.a
 src/libsodium/libs/libsse41.a
 src/libsodium/libs/libssse3.a
-
-#ingenuity
-builds/xcode
+zig-cache
+zig-out
