@@ -9,7 +9,7 @@ fi
 
 if [ -z "$WASI_RUNTIME" ] || [ "$WASI_RUNTIME" = "wasmedge" ]; then
   if command -v wasmedgec >/dev/null && command -v wasmedge >/dev/null; then
-    wasmedgec "$1" "${1}.so" &&
+    wasmedgec "$1" "${1}.so" >/dev/null &&
       wasmedge --dir=.:. "${1}.so" &&
       rm -f "${1}.so" &&
       exit 0
@@ -25,12 +25,6 @@ fi
 if [ -z "$WASI_RUNTIME" ] || [ "$WASI_RUNTIME" = "wasmtime" ]; then
   if command -v wasmtime >/dev/null; then
     wasmtime run --dir=. "$1" && exit 0
-  fi
-fi
-
-if [ -z "$WASI_RUNTIME" ] || [ "$WASI_RUNTIME" = "wavm" ]; then
-  if command -v wavm >/dev/null; then
-    wavm run --abi=wasi "$1" && exit 0
   fi
 fi
 
@@ -64,7 +58,7 @@ if [ -z "$WASI_RUNTIME" ] || [ "$WASI_RUNTIME" = "node" ]; then
       echo "  wasi.start(instance);"
       echo "})().catch(e => { console.error(e); process.exit(1); });"
     } >"${1}.mjs"
-    node --experimental-wasm-bigint --experimental-wasi-unstable-preview1 "${1}.mjs" 2>/tmp/err &&
+    node --experimental-wasi-unstable-preview1 "${1}.mjs" 2>/tmp/err &&
       rm -f "${1}.mjs" && exit 0
   fi
 fi
