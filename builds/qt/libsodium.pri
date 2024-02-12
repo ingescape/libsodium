@@ -39,12 +39,14 @@ SOURCES += \
     $$PWD/../../src/libsodium/crypto_pwhash/scryptsalsa208sha256/pwhash_scryptsalsa208sha256.c \
     $$PWD/../../src/libsodium/crypto_pwhash/scryptsalsa208sha256/sse/pwhash_scryptsalsa208sha256_sse.c \
     $$PWD/../../src/libsodium/crypto_pwhash/scryptsalsa208sha256/pbkdf2-sha256.c \
-    $$PWD/../../src/libsodium/crypto_verify/sodium/verify.c \
+    $$PWD/../../src/libsodium/crypto_verify/verify.c \
     $$PWD/../../src/libsodium/crypto_auth/hmacsha512/auth_hmacsha512.c \
     $$PWD/../../src/libsodium/crypto_auth/hmacsha512256/auth_hmacsha512256.c \
     $$PWD/../../src/libsodium/crypto_auth/crypto_auth.c \
     $$PWD/../../src/libsodium/crypto_auth/hmacsha256/auth_hmacsha256.c \
     $$PWD/../../src/libsodium/crypto_kdf/blake2b/kdf_blake2b.c \
+    $$PWD/../../src/libsodium/crypto_kdf/hkdf/kdf_hkdf_sha256.c \
+    $$PWD/../../src/libsodium/crypto_kdf/hkdf/kdf_hkdf_sha512.c \
     $$PWD/../../src/libsodium/crypto_kdf/crypto_kdf.c \
     $$PWD/../../src/libsodium/crypto_shorthash/crypto_shorthash.c \
     $$PWD/../../src/libsodium/crypto_shorthash/siphash24/ref/shorthash_siphashx24_ref.c \
@@ -98,14 +100,25 @@ SOURCES += \
     $$PWD/../../src/libsodium/crypto_hash/sha256/hash_sha256.c \
     $$PWD/../../src/libsodium/crypto_hash/sha256/cp/hash_sha256_cp.c \
     $$PWD/../../src/libsodium/crypto_hash/crypto_hash.c \
-    $$PWD/../../src/libsodium/crypto_aead/xchacha20poly1305/sodium/aead_xchacha20poly1305.c \
+    $$PWD/../../src/libsodium/crypto_aead/xchacha20poly1305/aead_xchacha20poly1305.c \
+    $$PWD/../../src/libsodium/crypto_aead/aegis128l/aegis128l_soft.c \
+    $$PWD/../../src/libsodium/crypto_aead/aegis128l/aead_aegis128l.c \
+    $$PWD/../../src/libsodium/crypto_aead/aegis128l/aegis128l_aesni.c \
+    $$PWD/../../src/libsodium/crypto_aead/aegis128l/aegis128l_armcrypto.c \
+    $$PWD/../../src/libsodium/crypto_aead/aegis256/aead_aegis256.c \
+    $$PWD/../../src/libsodium/crypto_aead/aegis256/aegis256_soft.c \
+    $$PWD/../../src/libsodium/crypto_aead/aegis256/aegis256_armcrypto.c \
+    $$PWD/../../src/libsodium/crypto_aead/aegis256/aegis256_aesni.c \
     $$PWD/../../src/libsodium/crypto_aead/aes256gcm/aesni/aead_aes256gcm_aesni.c \
-    $$PWD/../../src/libsodium/crypto_aead/chacha20poly1305/sodium/aead_chacha20poly1305.c \
+    $$PWD/../../src/libsodium/crypto_aead/aes256gcm/aead_aes256gcm.c \
+    $$PWD/../../src/libsodium/crypto_aead/aes256gcm/armcrypto/aead_aes256gcm_armcrypto.c \
+    $$PWD/../../src/libsodium/crypto_aead/chacha20poly1305/aead_chacha20poly1305.c \
     $$PWD/../../src/libsodium/crypto_secretstream/xchacha20poly1305/secretstream_xchacha20poly1305.c \
     $$PWD/../../src/libsodium/crypto_core/salsa/ref/core_salsa_ref.c \
     $$PWD/../../src/libsodium/crypto_core/hchacha20/core_hchacha20.c \
     $$PWD/../../src/libsodium/crypto_core/hsalsa20/ref2/core_hsalsa20_ref2.c \
     $$PWD/../../src/libsodium/crypto_core/hsalsa20/core_hsalsa20.c \
+    $$PWD/../../src/libsodium/crypto_core/softaes/softaes.c \
     $$PWD/../../src/libsodium/crypto_core/ed25519/core_ed25519.c \
     $$PWD/../../src/libsodium/crypto_core/ed25519/core_ristretto255.c \
     $$PWD/../../src/libsodium/crypto_core/ed25519/ref10/ed25519_ref10.c
@@ -123,8 +136,10 @@ HEADERS += \
     $$PWD/../../src/libsodium/include/sodium/crypto_auth.h \
     $$PWD/../../src/libsodium/include/sodium/utils.h \
     $$PWD/../../src/libsodium/include/sodium/crypto_core_hchacha20.h \
+    $$PWD/../../src/libsodium/include/sodium/crypto_aead_aegis256.h \
     $$PWD/../../src/libsodium/include/sodium/crypto_hash_sha512.h \
     $$PWD/../../src/libsodium/include/sodium/core.h \
+    $$PWD/../../src/libsodium/include/sodium/version.h \
     $$PWD/../../src/libsodium/include/sodium/export.h \
     $$PWD/../../src/libsodium/include/sodium/crypto_core_salsa20.h \
     $$PWD/../../src/libsodium/include/sodium/crypto_shorthash_siphash24.h \
@@ -147,6 +162,7 @@ HEADERS += \
     $$PWD/../../src/libsodium/include/sodium/crypto_stream_xchacha20.h \
     $$PWD/../../src/libsodium/include/sodium/crypto_core_salsa208.h \
     $$PWD/../../src/libsodium/include/sodium/crypto_auth_hmacsha512256.h \
+    $$PWD/../../src/libsodium/include/sodium/crypto_aead_aegis128l.h \
     $$PWD/../../src/libsodium/include/sodium/crypto_aead_chacha20poly1305.h \
     $$PWD/../../src/libsodium/include/sodium/randombytes_sysrandom.h \
     $$PWD/../../src/libsodium/include/sodium/runtime.h \
@@ -157,9 +173,11 @@ HEADERS += \
     $$PWD/../../src/libsodium/include/sodium/crypto_scalarmult.h \
     $$PWD/../../src/libsodium/include/sodium/crypto_pwhash.h \
     $$PWD/../../src/libsodium/include/sodium/private/ed25519_ref10.h \
+    $$PWD/../../src/libsodium/include/sodium/private/softaes.h \
     $$PWD/../../src/libsodium/include/sodium/private/ed25519_ref10_fe_25_5.h \
     $$PWD/../../src/libsodium/include/sodium/private/ed25519_ref10_fe_51.h \
     $$PWD/../../src/libsodium/include/sodium/private/sse2_64_32.h \
+    $$PWD/../../src/libsodium/include/sodium/private/asm_cet.h \
     $$PWD/../../src/libsodium/include/sodium/private/common.h \
     $$PWD/../../src/libsodium/include/sodium/private/mutex.h \
     $$PWD/../../src/libsodium/include/sodium/private/chacha20_ietf_ext.h \
@@ -171,6 +189,7 @@ HEADERS += \
     $$PWD/../../src/libsodium/include/sodium/crypto_kdf_blake2b.h \
     $$PWD/../../src/libsodium/include/sodium/crypto_scalarmult_curve25519.h \
     $$PWD/../../src/libsodium/include/sodium/crypto_shorthash.h \
+    $$PWD/../../src/libsodium/include/sodium/crypto_kdf_hkdf_sha256.h \
     $$PWD/../../src/libsodium/include/sodium/crypto_pwhash_argon2id.h \
     $$PWD/../../src/libsodium/include/sodium/crypto_secretstream_xchacha20poly1305.h \
     $$PWD/../../src/libsodium/include/sodium/crypto_pwhash_scryptsalsa208sha256.h \
@@ -179,6 +198,7 @@ HEADERS += \
     $$PWD/../../src/libsodium/include/sodium/crypto_verify_64.h \
     $$PWD/../../src/libsodium/include/sodium/crypto_box_curve25519xchacha20poly1305.h \
     $$PWD/../../src/libsodium/include/sodium/crypto_core_ed25519.h \
+    $$PWD/../../src/libsodium/include/sodium/crypto_kdf_hkdf_sha512.h \
     $$PWD/../../src/libsodium/include/sodium/crypto_pwhash_argon2i.h \
     $$PWD/../../src/libsodium/include/sodium/randombytes_internal_random.h \
     $$PWD/../../src/libsodium/include/sodium/crypto_generichash.h \
@@ -231,6 +251,16 @@ HEADERS += \
     $$PWD/../../src/libsodium/crypto_stream/salsa20/xmm6int/salsa20_xmm6int-sse2.h \
     $$PWD/../../src/libsodium/crypto_stream/salsa20/xmm6/salsa20_xmm6.h \
     $$PWD/../../src/libsodium/crypto_stream/salsa20/stream_salsa20.h \
+    $$PWD/../../src/libsodium/crypto_aead/aegis128l/aegis128l_armcrypto.h \
+    $$PWD/../../src/libsodium/crypto_aead/aegis128l/aegis128l_aesni.h \
+    $$PWD/../../src/libsodium/crypto_aead/aegis128l/aegis128l_soft.h \
+    $$PWD/../../src/libsodium/crypto_aead/aegis128l/aegis128l_common.h \
+    $$PWD/../../src/libsodium/crypto_aead/aegis128l/implementations.h \
+    $$PWD/../../src/libsodium/crypto_aead/aegis256/aegis256_aesni.h \
+    $$PWD/../../src/libsodium/crypto_aead/aegis256/aegis256_common.h \
+    $$PWD/../../src/libsodium/crypto_aead/aegis256/implementations.h \
+    $$PWD/../../src/libsodium/crypto_aead/aegis256/aegis256_armcrypto.h \
+    $$PWD/../../src/libsodium/crypto_aead/aegis256/aegis256_soft.h \
     $$PWD/../../src/libsodium/crypto_core/ed25519/ref10/fe_25_5/constants.h \
     $$PWD/../../src/libsodium/crypto_core/ed25519/ref10/fe_25_5/fe.h \
     $$PWD/../../src/libsodium/crypto_core/ed25519/ref10/fe_25_5/base2.h \
