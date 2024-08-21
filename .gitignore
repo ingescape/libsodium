@@ -174,5 +174,6 @@ src/libsodium/libs/libsodium.lai
 src/libsodium/libs/libsse2.a
 src/libsodium/libs/libsse41.a
 src/libsodium/libs/libssse3.a
+.zig-cache
 zig-cache
 zig-out
