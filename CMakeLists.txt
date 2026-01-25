@@ -96,6 +96,12 @@ set (sodium_headers
   ${SODIUM_SOURCE_DIR}/include/sodium/crypto_verify_16.h
   ${SODIUM_SOURCE_DIR}/include/sodium/crypto_stream_chacha20.h
   ${SODIUM_SOURCE_DIR}/include/sodium/crypto_stream_xsalsa20.h
+  ${SODIUM_SOURCE_DIR}/include/sodium/crypto_core_keccak1600.h
+  ${SODIUM_SOURCE_DIR}/include/sodium/crypto_ipcrypt.h
+  ${SODIUM_SOURCE_DIR}/include/sodium/crypto_xof_shake128.h
+  ${SODIUM_SOURCE_DIR}/include/sodium/crypto_xof_shake256.h
+  ${SODIUM_SOURCE_DIR}/include/sodium/crypto_xof_turboshake128.h
+  ${SODIUM_SOURCE_DIR}/include/sodium/crypto_xof_turboshake256.h
   ${SODIUM_SOURCE_DIR}/include/sodium/crypto_core_hsalsa20.h
   ${SODIUM_SOURCE_DIR}/include/sodium/crypto_kdf_blake2b.h
   ${SODIUM_SOURCE_DIR}/include/sodium/crypto_scalarmult_curve25519.h
