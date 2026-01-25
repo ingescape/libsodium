@@ -4,8 +4,6 @@ export PREFIX="$(pwd)/libsodium-apple"
 export MACOS_ARM64_PREFIX="${PREFIX}/tmp/macos-arm64"
 export MACOS_ARM64E_PREFIX="${PREFIX}/tmp/macos-arm64e"
 export MACOS_X86_64_PREFIX="${PREFIX}/tmp/macos-x86_64"
-export IOS32_PREFIX="${PREFIX}/tmp/ios32"
-export IOS32s_PREFIX="${PREFIX}/tmp/ios32s"
 export IOS64_PREFIX="${PREFIX}/tmp/ios64"
 export IOS64E_PREFIX="${PREFIX}/tmp/ios64e"
 export IOS_SIMULATOR_ARM64_PREFIX="${PREFIX}/tmp/ios-simulator-arm64"
@@ -33,7 +31,20 @@ export CATALYST_ARM64_PREFIX="${PREFIX}/tmp/catalyst-arm64"
 export CATALYST_ARM64E_PREFIX="${PREFIX}/tmp/catalyst-arm64e"
 export CATALYST_X86_64_PREFIX="${PREFIX}/tmp/catalyst-x86_64"
 export LOG_FILE="${PREFIX}/tmp/build_log"
-export XCODEDIR="$(xcode-select -p)"
+XCODEDIR="$(xcode-select -p)"
+if [ ! -d "${XCODEDIR}/Platforms/iPhoneOS.platform" ]; then
+  echo "Error: Xcode with iOS SDK not found." >&2
+  echo "Please install Xcode or run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer" >&2
+  exit 1
+fi
+export XCODEDIR
+
+NATIVE_ARCH=$(uname -m)
+if [ "$NATIVE_ARCH" = "arm64" ]; then
+  X86_CROSS_COMPILE="cross_compiling=yes"
+else
+  X86_CROSS_COMPILE=""
+fi
 
 export MACOS_VERSION_MIN=${MACOS_VERSION_MIN-"10.10"}
 export IOS_VERSION_MIN=${IOS_VERSION_MIN-"9.0.0"}
@@ -61,11 +72,12 @@ else
   export LIBSODIUM_ENABLE_MINIMAL_FLAG=""
 fi
 
-IOS32_SUPPORTED=false
-[ "$(echo "$IOS_VERSION_MIN" | cut -d'.' -f1)" -lt "11" ] && IOS32_SUPPORTED=true
-
 I386_SIMULATOR_SUPPORTED=false
-[ "$(echo "$IOS_SIMULATOR_VERSION_MIN" | cut -d'.' -f1)" -lt "11" ] && I386_SIMULATOR_SUPPORTED=true
+if [ "$(echo "$IOS_SIMULATOR_VERSION_MIN" | cut -d'.' -f1)" -lt "11" ]; then
+  if echo 'int main(void){return 0;}' | xcrun -sdk iphonesimulator clang -arch i386 -x c - -o /dev/null 2>/dev/null; then
+    I386_SIMULATOR_SUPPORTED=true
+  fi
+fi
 
 VISIONOS_SUPPORTED=false
 [ -d "${XCODEDIR}/Platforms/XROS.platform" ] && VISIONOS_SUPPORTED=true
@@ -107,7 +119,7 @@ build_macos() {
   export LDFLAGS="-arch x86_64 -mmacosx-version-min=${MACOS_VERSION_MIN}"
 
   make distclean >/dev/null 2>&1
-  ./configure --host=x86_64-apple-darwin23 --prefix="$MACOS_X86_64_PREFIX" \
+  ./configure ${X86_CROSS_COMPILE} --host=x86_64-apple-darwin23 --prefix="$MACOS_X86_64_PREFIX" \
     ${LIBSODIUM_ENABLE_MINIMAL_FLAG} || exit 1
   make -j${PROCESSORS} install || exit 1
 }
@@ -116,26 +128,6 @@ build_ios() {
   export BASEDIR="${XCODEDIR}/Platforms/iPhoneOS.platform/Developer"
   export PATH="${BASEDIR}/usr/bin:$BASEDIR/usr/sbin:$PATH"
   export SDK="${BASEDIR}/SDKs/iPhoneOS.sdk"
-
-  if [ "$IOS32_SUPPORTED" = true ]; then
-    ## 32-bit iOS
-    export CFLAGS="-O3 -mthumb -arch armv7 -isysroot ${SDK} -mios-version-min=${IOS_VERSION_MIN}"
-    export LDFLAGS="-mthumb -arch armv7 -isysroot ${SDK} -mios-version-min=${IOS_VERSION_MIN}"
-
-    make distclean >/dev/null 2>&1
-    ./configure --host=arm-apple-darwin23 --prefix="$IOS32_PREFIX" \
-      ${LIBSODIUM_ENABLE_MINIMAL_FLAG} || exit 1
-    make -j${PROCESSORS} install || exit 1
-
-    ## 32-bit armv7s iOS
-    export CFLAGS="-O3 -mthumb -arch armv7s -isysroot ${SDK} -mios-version-min=${IOS_VERSION_MIN}"
-    export LDFLAGS="-mthumb -arch armv7s -isysroot ${SDK} -mios-version-min=${IOS_VERSION_MIN}"
-
-    make distclean >/dev/null 2>&1
-    ./configure --host=arm-apple-darwin23 --prefix="$IOS32s_PREFIX" \
-      ${LIBSODIUM_ENABLE_MINIMAL_FLAG} || exit 1
-    make -j${PROCESSORS} install || exit 1
-  fi
 
   ## 64-bit iOS
   export CFLAGS="-O3 -arch arm64 -isysroot ${SDK} -mios-version-min=${IOS_VERSION_MIN}"
@@ -185,7 +177,7 @@ build_ios_simulator() {
     export LDFLAGS="-arch i386 -isysroot ${SDK} -mios-simulator-version-min=${IOS_SIMULATOR_VERSION_MIN}"
 
     make distclean >/dev/null 2>&1
-    ./configure --host=i686-apple-darwin23 --prefix="$IOS_SIMULATOR_I386_PREFIX" \
+    ./configure ${X86_CROSS_COMPILE} --host=i686-apple-darwin23 --prefix="$IOS_SIMULATOR_I386_PREFIX" \
       ${LIBSODIUM_ENABLE_MINIMAL_FLAG} || exit 1
     make -j${PROCESSORS} install || exit 1
   fi
@@ -195,8 +187,8 @@ build_ios_simulator() {
   export LDFLAGS="-arch x86_64 -isysroot ${SDK} -mios-simulator-version-min=${IOS_SIMULATOR_VERSION_MIN}"
 
   make distclean >/dev/null 2>&1
-  ./configure --host=x86_64-apple-darwin23 --prefix="$IOS_SIMULATOR_X86_64_PREFIX" \
-    ${LIBSODIUM_ENABLE_MINIMAL_FLAG}
+  ./configure ${X86_CROSS_COMPILE} --host=x86_64-apple-darwin23 --prefix="$IOS_SIMULATOR_X86_64_PREFIX" \
+    ${LIBSODIUM_ENABLE_MINIMAL_FLAG} || exit 1
   make -j${PROCESSORS} install || exit 1
 }
 
@@ -270,7 +262,7 @@ build_watchos_simulator() {
   export LDFLAGS="-arch i386 -isysroot ${SDK} -mwatchos-simulator-version-min=${WATCHOS_SIMULATOR_VERSION_MIN}"
 
   make distclean >/dev/null 2>&1
-  ./configure --host=i686-apple-darwin23 --prefix="$WATCHOS_SIMULATOR_I386_PREFIX" \
+  ./configure ${X86_CROSS_COMPILE} --host=i686-apple-darwin23 --prefix="$WATCHOS_SIMULATOR_I386_PREFIX" \
     ${LIBSODIUM_ENABLE_MINIMAL_FLAG} || exit 1
   make -j${PROCESSORS} install || exit 1
 
@@ -279,7 +271,7 @@ build_watchos_simulator() {
   export LDFLAGS="-arch x86_64 -isysroot ${SDK} -mwatchos-simulator-version-min=${WATCHOS_SIMULATOR_VERSION_MIN}"
 
   make distclean >/dev/null 2>&1
-  ./configure --host=x86_64-apple-darwin23 --prefix="$WATCHOS_SIMULATOR_X86_64_PREFIX" \
+  ./configure ${X86_CROSS_COMPILE} --host=x86_64-apple-darwin23 --prefix="$WATCHOS_SIMULATOR_X86_64_PREFIX" \
     ${LIBSODIUM_ENABLE_MINIMAL_FLAG} || exit 1
   make -j${PROCESSORS} install || exit 1
 }
@@ -336,8 +328,8 @@ build_tvos_simulator() {
   export LDFLAGS="-arch x86_64 -isysroot ${SDK} -mtvos-simulator-version-min=${TVOS_SIMULATOR_VERSION_MIN}"
 
   make distclean >/dev/null 2>&1
-  ./configure --host=x86_64-apple-darwin23 --prefix="$TVOS_SIMULATOR_X86_64_PREFIX" \
-    ${LIBSODIUM_ENABLE_MINIMAL_FLAG}
+  ./configure ${X86_CROSS_COMPILE} --host=x86_64-apple-darwin23 --prefix="$TVOS_SIMULATOR_X86_64_PREFIX" \
+    ${LIBSODIUM_ENABLE_MINIMAL_FLAG} || exit 1
   make -j${PROCESSORS} install || exit 1
 }
 
@@ -413,7 +405,7 @@ build_catalyst() {
   export LDFLAGS="-arch x86_64 -target x86_64-apple-ios13.1-macabi -isysroot ${SDK}"
 
   make distclean >/dev/null 2>&1
-  ./configure --host=x86_64-apple-ios --prefix="$CATALYST_X86_64_PREFIX" \
+  ./configure ${X86_CROSS_COMPILE} --host=x86_64-apple-ios --prefix="$CATALYST_X86_64_PREFIX" \
     ${LIBSODIUM_ENABLE_MINIMAL_FLAG} || exit 1
   make -j${PROCESSORS} install || exit 1
 }
@@ -475,10 +467,6 @@ cp -a "${IOS64_PREFIX}/include" "${PREFIX}/ios/"
 for ext in a dylib; do
   LIBRARY_PATHS="$IOS64_PREFIX/lib/libsodium.${ext}"
   LIBRARY_PATHS="$LIBRARY_PATHS $IOS64E_PREFIX/lib/libsodium.${ext}"
-  if [ "$IOS32_SUPPORTED" = true ]; then
-    LIBRARY_PATHS="$LIBRARY_PATHS $IOS32_PREFIX/lib/libsodium.${ext}"
-    LIBRARY_PATHS="$LIBRARY_PATHS $IOS32s_PREFIX/lib/libsodium.${ext}"
-  fi
   lipo -create \
     ${LIBRARY_PATHS} \
     -output "$PREFIX/ios/lib/libsodium.${ext}"
