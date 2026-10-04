@@ -227,6 +227,7 @@ set (sodium_sources
   ${SODIUM_SOURCE_DIR}/crypto_pwhash/argon2/blake2b-long.c
   ${SODIUM_SOURCE_DIR}/crypto_pwhash/argon2/argon2-core.c
   ${SODIUM_SOURCE_DIR}/crypto_pwhash/argon2/argon2-fill-block-avx512f.c
+  ${SODIUM_SOURCE_DIR}/crypto_pwhash/argon2/argon2-fill-block-neon.c
   ${SODIUM_SOURCE_DIR}/crypto_pwhash/argon2/argon2-fill-block-ref.c
   ${SODIUM_SOURCE_DIR}/crypto_pwhash/argon2/argon2-fill-block-ssse3.c
   ${SODIUM_SOURCE_DIR}/crypto_pwhash/argon2/pwhash_argon2i.c
