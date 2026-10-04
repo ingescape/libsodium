@@ -64,6 +64,10 @@ set (sodium_headers
   ${SODIUM_SOURCE_DIR}/include/sodium/crypto_scalarmult_ristretto255.h
   ${SODIUM_SOURCE_DIR}/include/sodium/crypto_kx.h
   ${SODIUM_SOURCE_DIR}/include/sodium/crypto_hash.h
+  ${SODIUM_SOURCE_DIR}/include/sodium/crypto_hash_sha3.h
+  ${SODIUM_SOURCE_DIR}/include/sodium/crypto_kem_mlkem768.h
+  ${SODIUM_SOURCE_DIR}/include/sodium/crypto_kem_xwing.h
+  ${SODIUM_SOURCE_DIR}/include/sodium/crypto_kem.h
   ${SODIUM_SOURCE_DIR}/include/sodium/crypto_sign.h
   ${SODIUM_SOURCE_DIR}/include/sodium/crypto_kdf.h
   ${SODIUM_SOURCE_DIR}/include/sodium/crypto_auth_hmacsha256.h
@@ -129,6 +133,7 @@ set (sodium_headers
   ${SODIUM_SOURCE_DIR}/crypto_pwhash/argon2/blamka-round-ref.h
   ${SODIUM_SOURCE_DIR}/crypto_pwhash/argon2/blamka-round-avx2.h
   ${SODIUM_SOURCE_DIR}/crypto_pwhash/argon2/argon2.h
+  ${SODIUM_SOURCE_DIR}/crypto_pwhash/argon2/blamka-round-neon.h
   ${SODIUM_SOURCE_DIR}/crypto_pwhash/argon2/blamka-round-ssse3.h
   ${SODIUM_SOURCE_DIR}/crypto_pwhash/argon2/argon2-encoding.h
   ${SODIUM_SOURCE_DIR}/crypto_pwhash/argon2/blake2b-long.h
@@ -158,6 +163,7 @@ set (sodium_headers
   ${SODIUM_SOURCE_DIR}/crypto_stream/chacha20/dolbeau/u0.h
   ${SODIUM_SOURCE_DIR}/crypto_stream/chacha20/dolbeau/u1.h
   ${SODIUM_SOURCE_DIR}/crypto_stream/chacha20/dolbeau/chacha20_dolbeau-avx2.h
+  ${SODIUM_SOURCE_DIR}/crypto_stream/chacha20/dolbeau/chacha20_dolbeau-avx512.h
   ${SODIUM_SOURCE_DIR}/crypto_stream/chacha20/dolbeau/u8.h
   ${SODIUM_SOURCE_DIR}/crypto_stream/salsa20/ref/salsa20_ref.h
   ${SODIUM_SOURCE_DIR}/crypto_stream/salsa20/xmm6int/u4.h
@@ -165,7 +171,9 @@ set (sodium_headers
   ${SODIUM_SOURCE_DIR}/crypto_stream/salsa20/xmm6int/u1.h
   ${SODIUM_SOURCE_DIR}/crypto_stream/salsa20/xmm6int/salsa20_xmm6int-avx2.h
   ${SODIUM_SOURCE_DIR}/crypto_stream/salsa20/xmm6int/u8.h
+  ${SODIUM_SOURCE_DIR}/crypto_stream/salsa20/xmm6int/u16.h
   ${SODIUM_SOURCE_DIR}/crypto_stream/salsa20/xmm6int/salsa20_xmm6int-sse2.h
+  ${SODIUM_SOURCE_DIR}/crypto_stream/salsa20/xmm6int/salsa20_xmm6int-avx512.h
   ${SODIUM_SOURCE_DIR}/crypto_stream/salsa20/xmm6/salsa20_xmm6.h
   ${SODIUM_SOURCE_DIR}/crypto_stream/salsa20/stream_salsa20.h
   ${SODIUM_SOURCE_DIR}/crypto_aead/aegis128l/aegis128l_armcrypto.h
@@ -285,10 +293,12 @@ set (sodium_sources
   ${SODIUM_SOURCE_DIR}/crypto_stream/chacha20/ref/chacha20_ref.c
   ${SODIUM_SOURCE_DIR}/crypto_stream/chacha20/stream_chacha20.c
   ${SODIUM_SOURCE_DIR}/crypto_stream/chacha20/dolbeau/chacha20_dolbeau-avx2.c
+  ${SODIUM_SOURCE_DIR}/crypto_stream/chacha20/dolbeau/chacha20_dolbeau-avx512.c
   ${SODIUM_SOURCE_DIR}/crypto_stream/chacha20/dolbeau/chacha20_dolbeau-ssse3.c
   ${SODIUM_SOURCE_DIR}/crypto_stream/salsa20/ref/salsa20_ref.c
   ${SODIUM_SOURCE_DIR}/crypto_stream/salsa20/stream_salsa20.c
   ${SODIUM_SOURCE_DIR}/crypto_stream/salsa20/xmm6int/salsa20_xmm6int-avx2.c
+  ${SODIUM_SOURCE_DIR}/crypto_stream/salsa20/xmm6int/salsa20_xmm6int-avx512.c
   ${SODIUM_SOURCE_DIR}/crypto_stream/salsa20/xmm6int/salsa20_xmm6int-sse2.c
   ${SODIUM_SOURCE_DIR}/crypto_stream/salsa20/xmm6/salsa20_xmm6.c
   ${SODIUM_SOURCE_DIR}/crypto_stream/crypto_stream.c
@@ -297,6 +307,11 @@ set (sodium_sources
   ${SODIUM_SOURCE_DIR}/crypto_stream/salsa208/ref/stream_salsa208_ref.c
   ${SODIUM_SOURCE_DIR}/crypto_stream/salsa208/stream_salsa208.c
   ${SODIUM_SOURCE_DIR}/crypto_stream/xsalsa20/stream_xsalsa20.c
+  ${SODIUM_SOURCE_DIR}/crypto_kem/crypto_kem.c
+  ${SODIUM_SOURCE_DIR}/crypto_kem/mlkem768/kem_mlkem768.c
+  ${SODIUM_SOURCE_DIR}/crypto_kem/mlkem768/ref/kem_mlkem768_ref.c
+  ${SODIUM_SOURCE_DIR}/crypto_kem/xwing/kem_xwing.c
+  ${SODIUM_SOURCE_DIR}/crypto_hash/sha3/hash_sha3.c
   ${SODIUM_SOURCE_DIR}/crypto_hash/sha512/hash_sha512.c
   ${SODIUM_SOURCE_DIR}/crypto_hash/sha512/cp/hash_sha512_cp.c
   ${SODIUM_SOURCE_DIR}/crypto_hash/sha256/hash_sha256.c
@@ -316,14 +331,21 @@ set (sodium_sources
   ${SODIUM_SOURCE_DIR}/crypto_aead/aes256gcm/armcrypto/aead_aes256gcm_armcrypto.c
   ${SODIUM_SOURCE_DIR}/crypto_aead/chacha20poly1305/aead_chacha20poly1305.c
   ${SODIUM_SOURCE_DIR}/crypto_secretstream/xchacha20poly1305/secretstream_xchacha20poly1305.c
-  ${SODIUM_SOURCE_DIR}/crypto_core/salsa/ref/core_salsa_ref.c
-  ${SODIUM_SOURCE_DIR}/crypto_core/hchacha20/core_hchacha20.c
-  ${SODIUM_SOURCE_DIR}/crypto_core/hsalsa20/ref2/core_hsalsa20_ref2.c
-  ${SODIUM_SOURCE_DIR}/crypto_core/hsalsa20/core_hsalsa20.c
-  ${SODIUM_SOURCE_DIR}/crypto_core/softaes/softaes.c
   ${SODIUM_SOURCE_DIR}/crypto_core/ed25519/core_ed25519.c
   ${SODIUM_SOURCE_DIR}/crypto_core/ed25519/core_ristretto255.c
   ${SODIUM_SOURCE_DIR}/crypto_core/ed25519/ref10/ed25519_ref10.c
+  ${SODIUM_SOURCE_DIR}/crypto_core/hchacha20/core_hchacha20.c
+  ${SODIUM_SOURCE_DIR}/crypto_core/hsalsa20/ref2/core_hsalsa20_ref2.c
+  ${SODIUM_SOURCE_DIR}/crypto_core/hsalsa20/core_hsalsa20.c
+  ${SODIUM_SOURCE_DIR}/crypto_core/keccak1600/keccak1600.c
+  ${SODIUM_SOURCE_DIR}/crypto_core/keccak1600/armsha3/keccak1600_armsha3.c
+  ${SODIUM_SOURCE_DIR}/crypto_core/keccak1600/ref/keccak1600_ref.c
+  ${SODIUM_SOURCE_DIR}/crypto_core/salsa/ref/core_salsa_ref.c
+  ${SODIUM_SOURCE_DIR}/crypto_core/softaes/softaes.c
+  ${SODIUM_SOURCE_DIR}/crypto_xof/shake128/xof_shake128.c
+  ${SODIUM_SOURCE_DIR}/crypto_xof/shake128/ref/shake128_ref.c
+  ${SODIUM_SOURCE_DIR}/crypto_xof/shake256/xof_shake256.c
+  ${SODIUM_SOURCE_DIR}/crypto_xof/shake256/ref/shake256_ref.c
 )
 
 set(LIB_VERSION 23)
