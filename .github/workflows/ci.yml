@@ -9,6 +9,14 @@ on:
   workflow_dispatch:
 
 jobs:
+  version-consistency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check version consistency
+        run: ./test/check-version-consistency.sh
+
   tcc:
     runs-on: ubuntu-latest
     steps:
@@ -43,7 +51,7 @@ jobs:
       - name: Install Zig
         uses: mlugg/setup-zig@v2
         with:
-          version: 0.15.2
+          version: 0.16.0
 
       - name: Autogen
         run: ./autogen.sh -s
@@ -61,6 +69,8 @@ jobs:
           zig build -Dtarget=x86_64-freebsd
           zig build -Dtarget=aarch64-freebsd
           zig build -Dtarget=wasm32-wasi
+          zig build -Dtarget=wasm32-freestanding
+          zig build -Dtarget=wasm32-freestanding -Dwasm_freestanding_libc=false
           zig build -Doptimize=ReleaseFast
           rm -fr zig-cache zig-out
 
@@ -180,7 +190,7 @@ jobs:
           for wasm in *.wasm; do
             name="${wasm%.wasm}"
             echo "[$name]"
-            if ! wasmer run "$wasm" --mapdir=./:.  2>&1; then
+            if ! wasmer run --volume="$(pwd):/" "$wasm" 2>&1; then
               echo "*** [$name] FAILED" >&2
               failed=1
             fi

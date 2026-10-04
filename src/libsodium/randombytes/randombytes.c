@@ -7,7 +7,8 @@
 #include <sys/types.h>
 
 #ifdef __EMSCRIPTEN__
-# include <emscripten.h>
+# include <unistd.h>
+# include <wasi/api.h>
 #endif
 
 #include "core.h"
@@ -44,52 +45,33 @@ javascript_implementation_name(void)
 static uint32_t
 javascript_random(void)
 {
-    return EM_ASM_INT_V({
-        return Module.getRandomValue();
-    });
+    uint32_t r;
+
+    if (getentropy(&r, sizeof r) != 0) {
+        sodium_misuse();
+    }
+    return r;
 }
 
 static void
 javascript_stir(void)
 {
-    EM_ASM({
-        if (Module.getRandomValue === undefined) {
-            try {
-                var window_ = 'object' === typeof window ? window : self;
-                var crypto_ = typeof window_.crypto !== 'undefined' ? window_.crypto : window_.msCrypto;
-                crypto_ = (crypto_ === undefined) ? crypto : crypto_;
-                var randomValuesStandard = function() {
-                    var buf = new Uint32Array(1);
-                    crypto_.getRandomValues(buf);
-                    return buf[0] >>> 0;
-                };
-                randomValuesStandard();
-                Module.getRandomValue = randomValuesStandard;
-            } catch (e) {
-                try {
-                    var crypto = require('crypto');
-                    var randomValueNodeJS = function() {
-                        var buf = crypto['randomBytes'](4);
-                        return (buf[0] << 24 | buf[1] << 16 | buf[2] << 8 | buf[3]) >>> 0;
-                    };
-                    randomValueNodeJS();
-                    Module.getRandomValue = randomValueNodeJS;
-                } catch (e) {
-                    throw 'No secure random number generator found';
-                }
-            }
-        }
-    });
+    (void) javascript_random();
 }
 
 static void
-javascript_buf(void * const buf, const size_t size)
+javascript_buf(void * const buf, size_t size)
 {
     unsigned char *p = (unsigned char *) buf;
-    size_t         i;
+    size_t         chunk_size;
 
-    for (i = (size_t) 0U; i < size; i++) {
-        p[i] = (unsigned char) randombytes_random();
+    while (size > (size_t) 0U) {
+        chunk_size = size > 65536U ? 65536U : size;
+        if (__wasi_random_get(p, chunk_size) != 0) {
+            sodium_misuse();
+        }
+        p += chunk_size;
+        size -= chunk_size;
     }
 }
 #endif
@@ -186,7 +168,7 @@ randombytes_buf_deterministic(void * const buf, const size_t size,
 #if SIZE_MAX > 0x4000000000ULL
     COMPILER_ASSERT(randombytes_BYTES_MAX <= 0x4000000000ULL);
     if (size > 0x4000000000ULL) {
-        sodium_misuse();
+        sodium_misuse(); /* LCOV_EXCL_LINE */
     }
 #endif
     crypto_stream_chacha20_ietf((unsigned char *) buf, (unsigned long long) size,

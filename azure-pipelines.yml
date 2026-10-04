@@ -11,7 +11,7 @@ jobs:
     steps:
       - powershell: |
           cd builds\msvc\build
-          & .\buildbase.bat ..\vs2026\libsodium.sln 18
+          & .\buildbase.bat ..\vs2022\libsodium.sln 17
         displayName: Compile it all
       - powershell: |
           mkdir bin\include\sodium
@@ -19,7 +19,6 @@ jobs:
           Copy-Item "src\libsodium\include\*.h" -Destination "bin\include\"
         displayName: Copy header files
       - task: PublishBuildArtifacts@1
-        condition: not(canceled())
         inputs:
           pathToPublish: bin
           artifactName: libsodium
@@ -38,7 +37,6 @@ jobs:
           Copy-Item "src\libsodium\include\*.h" -Destination "bin\include\"
         displayName: Copy header files
       - task: PublishBuildArtifacts@1
-        condition: not(canceled())
         inputs:
           pathToPublish: bin
           artifactName: libsodium
@@ -60,7 +58,6 @@ jobs:
           Copy-Item "src\libsodium\include\*.h" -Destination "bin\include\"
         displayName: Copy header files
       - task: PublishBuildArtifacts@1
-        condition: not(canceled())
         inputs:
           pathToPublish: bin
           artifactName: libsodium
@@ -70,7 +67,7 @@ jobs:
       vmImage: "windows-2022"
     steps:
       - powershell: |
-          (New-Object Net.WebClient).DownloadFile("https://github.com/msys2/msys2-installer/releases/download/2025-12-13/msys2-base-x86_64-20251213.sfx.exe", "sfx.exe")
+          (New-Object Net.WebClient).DownloadFile("https://github.com/msys2/msys2-installer/releases/download/2026-06-11/msys2-base-x86_64-20260611.sfx.exe", "sfx.exe")
           .\sfx.exe -y -o\
           del sfx.exe
         displayName: Install MSYS2
@@ -109,7 +106,7 @@ jobs:
       vmImage: "windows-2022"
     steps:
       - powershell: |
-          (New-Object Net.WebClient).DownloadFile("https://github.com/msys2/msys2-installer/releases/download/2025-12-13/msys2-base-x86_64-20251213.sfx.exe", "sfx.exe")
+          (New-Object Net.WebClient).DownloadFile("https://github.com/msys2/msys2-installer/releases/download/2026-06-11/msys2-base-x86_64-20260611.sfx.exe", "sfx.exe")
           .\sfx.exe -y -o\
           del sfx.exe
         displayName: Install MSYS2

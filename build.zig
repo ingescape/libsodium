@@ -5,10 +5,12 @@ const mem = std.mem;
 const Compile = std.Build.Step.Compile;
 const Target = std.Target;
 
-// Zig 0.16+ uses std.Io.Dir, 0.15 uses std.fs
-const is_zig_16 = @hasDecl(std, "Io") and @hasDecl(std.Io, "Dir");
-const Dir = if (is_zig_16) std.Io.Dir else std.fs.Dir;
-const Io = if (is_zig_16) std.Io else void;
+const pre_zig17 = @hasDecl(std, "Io") and @hasDecl(std.Io, "Dir");
+const Dir = if (pre_zig17) std.Io.Dir else std.fs.Dir;
+const Io = if (pre_zig17) std.Io else void;
+
+const has_build_root_handle = @hasField(std.Build, "build_root");
+const wasm_libc_path = "builds/wasm32-freestanding";
 
 fn initLibConfig(b: *std.Build, target: std.Build.ResolvedTarget, lib: *Compile) void {
     lib.root_module.link_libc = true;
@@ -102,6 +104,12 @@ fn initLibConfig(b: *std.Build, target: std.Build.ResolvedTarget, lib: *Compile)
             lib.root_module.addCMacro("HAVE_SYS_PARAM_H", "1");
             lib.root_module.addCMacro("HAVE_SYS_RANDOM_H", "1");
         },
+        .freestanding => {
+            if (target.result.cpu.arch.isWasm()) {
+                lib.root_module.link_libc = false;
+                lib.root_module.addSystemIncludePath(b.path(wasm_libc_path ++ "/include"));
+            }
+        },
         .freebsd => {
             lib.root_module.addCMacro("ASM_HIDE_SYMBOL", ".hidden");
             lib.root_module.addCMacro("TLS", "_Thread_local");
@@ -140,6 +148,7 @@ fn initLibConfig(b: *std.Build, target: std.Build.ResolvedTarget, lib: *Compile)
                 },
             }
             lib.root_module.addCMacro("HAVE_CPUID", "1");
+            lib.root_module.addCMacro("HAVE_XGETBV_ASM", "1");
             lib.root_module.addCMacro("HAVE_MMINTRIN_H", "1");
             lib.root_module.addCMacro("HAVE_EMMINTRIN_H", "1");
             lib.root_module.addCMacro("HAVE_PMMINTRIN_H", "1");
@@ -169,12 +178,16 @@ fn initLibConfig(b: *std.Build, target: std.Build.ResolvedTarget, lib: *Compile)
 }
 
 pub fn build(b: *std.Build) !void {
-    const io: Io = if (is_zig_16) b.graph.io else {};
-    const root_path = b.pathFromRoot(".");
-    const cwd = try if (is_zig_16) Dir.cwd().openDir(io, root_path, .{}) else std.fs.cwd().openDir(root_path, .{});
+    const io: Io = if (pre_zig17) b.graph.io else {};
+    const cwd: Dir = if (!pre_zig17)
+        try std.fs.cwd().openDir(b.build_root.path orelse ".", .{})
+    else if (has_build_root_handle)
+        b.build_root.handle
+    else
+        try b.root.openDir(io, ".", .{});
 
     const src_path = "src/libsodium";
-    const src_dir = if (is_zig_16)
+    const src_dir = if (pre_zig17)
         try cwd.openDir(io, src_path, .{ .iterate = true })
     else if (@hasField(Dir.OpenOptions, "follow_symlinks"))
         try cwd.openDir(src_path, .{ .iterate = true, .follow_symlinks = false })
@@ -184,15 +197,31 @@ pub fn build(b: *std.Build) !void {
     var target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    const debug_mode: @TypeOf(optimize) = if (@hasField(@TypeOf(optimize), "debug")) .debug else .Debug;
+
     const enable_benchmarks = b.option(bool, "enable_benchmarks", "Whether tests should be benchmarks.") orelse false;
     const benchmarks_iterations = b.option(u32, "iterations", "Number of iterations for benchmarks.") orelse 200;
+    const wasm_max_memory = b.option(u64, "wasm_max_memory", "Maximum WebAssembly linear memory size in bytes.") orelse null;
+    const wasm_freestanding_libc = b.option(
+        bool,
+        "wasm_freestanding_libc",
+        "Include the built-in libc compatibility layer for wasm32-freestanding.",
+    ) orelse true;
     var build_static = b.option(bool, "static", "Build libsodium as a static library.") orelse true;
     var build_shared = b.option(bool, "shared", "Build libsodium as a shared library.") orelse true;
 
-    const build_tests = b.option(bool, "test", "Build the tests (implies -Dstatic=true)") orelse true;
+    var build_tests = b.option(bool, "test", "Build the tests (implies -Dstatic=true)") orelse true;
+
+    const wasm_freestanding =
+        target.result.cpu.arch.isWasm() and target.result.os.tag == .freestanding;
 
     if (target.result.cpu.arch.isWasm()) {
         build_shared = false;
+    }
+    // The test programs need a hosted environment: standard input and output,
+    // and files to read the expected results from.
+    if (wasm_freestanding) {
+        build_tests = false;
     }
     if (build_tests) {
         build_static = true;
@@ -202,7 +231,7 @@ pub fn build(b: *std.Build) !void {
         .aarch64, .aarch64_be => {
             // ARM CPUs supported by Windows are assumed to have NEON support
             if (target.result.isMinGW()) {
-                target.query.cpu_features_add.addFeature(@intFromEnum(Target.aarch64.Feature.neon));
+                target.query.cpu_features_add.addFeatureSet(Target.aarch64.featureSet(&.{.neon}));
             }
         },
         else => {},
@@ -223,12 +252,12 @@ pub fn build(b: *std.Build) !void {
         .root_module = b.createModule(.{
             .target = target,
             .optimize = optimize,
-            .strip = optimize != .Debug and !target.result.isMinGW(),
+            .strip = optimize != debug_mode and !target.result.isMinGW(),
         }),
     });
 
     // work out which libraries we are building
-    var libs = std.ArrayList(*Compile){};
+    var libs: std.ArrayListUnmanaged(*Compile) = .empty;
     defer libs.deinit(heap.page_allocator);
     if (build_static) {
         try libs.append(heap.page_allocator, static_lib);
@@ -237,28 +266,18 @@ pub fn build(b: *std.Build) !void {
         try libs.append(heap.page_allocator, shared_lib);
     }
 
-    const prebuilt_version_file_path = "builds/msvc/version.h";
-    const version_file_path = "include/sodium/version.h";
-
-    if (is_zig_16) {
-        src_dir.access(io, version_file_path, .{}) catch {
-            try Dir.copyFile(cwd, prebuilt_version_file_path, src_dir, version_file_path, io, .{});
-        };
-    } else if (@hasField(Dir.OpenOptions, "follow_symlinks")) {
-        src_dir.access(version_file_path, .{ .read = true }) catch {
-            try cwd.copyFile(prebuilt_version_file_path, src_dir, version_file_path, .{});
-        };
-    } else {
-        src_dir.access(version_file_path, .{ .mode = .read_only }) catch {
-            try cwd.copyFile(prebuilt_version_file_path, src_dir, version_file_path, .{});
-        };
-    }
+    const version_files = b.addWriteFiles();
+    const version_file = version_files.addCopyFile(b.path("builds/msvc/version.h"), "version.h");
 
     for (libs.items) |lib| {
         b.installArtifact(lib);
         lib.installHeader(b.path(src_path ++ "/include/sodium.h"), "sodium.h");
-        lib.installHeadersDirectory(b.path(src_path ++ "/include/sodium"), "sodium", .{});
+        lib.installHeadersDirectory(b.path(src_path ++ "/include/sodium"), "sodium", .{
+            .exclude_extensions = &.{"version.h"},
+        });
+        lib.installHeader(version_file, "sodium/version.h");
 
+        lib.root_module.addIncludePath(version_files.getDirectory());
         initLibConfig(b, target, lib);
 
         const flags = &.{
@@ -270,10 +289,17 @@ pub fn build(b: *std.Build) !void {
             "-Werror=vla",
         };
 
+        if (wasm_freestanding and wasm_freestanding_libc) {
+            lib.root_module.addCSourceFiles(.{
+                .files = &.{wasm_libc_path ++ "/libc.c"},
+                .flags = flags,
+            });
+        }
+
         const allocator = heap.page_allocator;
 
         var walker = try src_dir.walk(allocator);
-        while (if (is_zig_16) try walker.next(io) else try walker.next()) |entry| {
+        while (if (pre_zig17) try walker.next(io) else try walker.next()) |entry| {
             const name = entry.basename;
             if (mem.endsWith(u8, name, ".c")) {
                 const full_path = try fmt.allocPrint(allocator, "{s}/{s}", .{ src_path, entry.path });
@@ -290,29 +316,14 @@ pub fn build(b: *std.Build) !void {
     }
 
     const test_path = "test/default";
-    const out_bin_path = "zig-out/bin";
-    const test_dir = if (is_zig_16)
+    const test_dir = if (pre_zig17)
         try cwd.openDir(io, test_path, .{ .iterate = true })
     else if (@hasField(Dir.OpenOptions, "follow_symlinks"))
         try cwd.openDir(test_path, .{ .iterate = true, .follow_symlinks = false })
     else
         try cwd.openDir(test_path, .{ .iterate = true, .no_follow = true });
 
-    if (is_zig_16) {
-        cwd.createDirPath(io, out_bin_path) catch {};
-    } else {
-        cwd.makePath(out_bin_path) catch {};
-    }
-    const out_bin_dir = if (is_zig_16)
-        try cwd.openDir(io, out_bin_path, .{})
-    else
-        try cwd.openDir(out_bin_path, .{});
-
-    if (is_zig_16) {
-        try Dir.copyFile(test_dir, "run.sh", out_bin_dir, "run.sh", io, .{});
-    } else {
-        try test_dir.copyFile("run.sh", out_bin_dir, "run.sh", .{});
-    }
+    b.installBinFile(test_path ++ "/run.sh", "run.sh");
 
     const allocator = heap.page_allocator;
     var walker = try test_dir.walk(allocator);
@@ -320,14 +331,11 @@ pub fn build(b: *std.Build) !void {
     const test_step = b.step("test", "Run all libsodium tests");
 
     if (build_tests) {
-        while (if (is_zig_16) try walker.next(io) else try walker.next()) |entry| {
+        while (if (pre_zig17) try walker.next(io) else try walker.next()) |entry| {
             const name = entry.basename;
             if (mem.endsWith(u8, name, ".exp")) {
-                if (is_zig_16) {
-                    try Dir.copyFile(test_dir, name, out_bin_dir, name, io, .{});
-                } else {
-                    try test_dir.copyFile(name, out_bin_dir, name, .{});
-                }
+                const full_path = try fmt.allocPrint(allocator, "{s}/{s}", .{ test_path, entry.path });
+                b.installBinFile(full_path, name);
                 continue;
             }
             if (!mem.endsWith(u8, name, ".c")) {
@@ -339,10 +347,13 @@ pub fn build(b: *std.Build) !void {
                 .root_module = b.createModule(.{
                     .target = target,
                     .optimize = optimize,
-                    .strip = true,
+                    .strip = optimize != debug_mode,
                     .link_libc = true,
                 }),
             });
+            if (target.result.cpu.arch.isWasm()) {
+                exe.max_memory = wasm_max_memory;
+            }
             exe.root_module.linkLibrary(static_lib);
             exe.root_module.addIncludePath(b.path("src/libsodium/include"));
             exe.root_module.addIncludePath(b.path("test/quirks"));

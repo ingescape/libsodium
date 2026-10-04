@@ -4,6 +4,7 @@
 .done
 .DS_Store
 .libs
+.swival/
 .zig-cache
 *.bc
 *.done
@@ -41,6 +42,8 @@ confdefs.h
 config.*
 configure
 configure.lineno
+conftest.c
+conftest.err
 coverage.info
 depcomp
 INSTALL
@@ -106,6 +109,8 @@ test/default/box8
 test/default/browser
 test/default/chacha20
 test/default/codecs
+test/default/codecs2
+test/default/codecs3
 test/default/core_ed25519
 test/default/core_keccak1600
 test/default/core_ristretto255
@@ -120,10 +125,18 @@ test/default/generichash
 test/default/generichash2
 test/default/generichash3
 test/default/hash
+test/default/hash_sha3256
+test/default/hash_sha3512
 test/default/hash3
 test/default/ipcrypt
 test/default/kdf
 test/default/kdf_hkdf
+test/default/kdf_hkdf2
+test/default/kdf_hkdf3
+test/default/kdf_hkdf4
+test/default/kem
+test/default/kem_mlkem768
+test/default/kem_xwing
 test/default/keygen
 test/default/kx
 test/default/metamorphic
@@ -133,6 +146,7 @@ test/default/onetimeauth2
 test/default/onetimeauth7
 test/default/pwhash_argon2i
 test/default/pwhash_argon2id
+test/default/pwhash_argon2id2
 test/default/pwhash_scrypt
 test/default/pwhash_scrypt_ll
 test/default/randombytes
@@ -158,20 +172,23 @@ test/default/sodium_core
 test/default/sodium_utils
 test/default/sodium_utils2
 test/default/sodium_utils3
+test/default/sodium_utils4
 test/default/sodium_version
 test/default/stream
 test/default/stream2
 test/default/stream3
 test/default/stream4
+test/default/stream5
+test/default/stream6
 test/default/verify1
 test/default/xchacha20
 test/default/xof_shake128
 test/default/xof_shake256
 test/default/xof_turboshake128
 test/default/xof_turboshake256
+test/default/xof2
 test/js.done
 testing
-<<<<<<< HEAD
 src/libsodium/libs/libaesni.a
 src/libsodium/libs/libavx2.a
 src/libsodium/libs/libavx512f.a
@@ -184,6 +201,7 @@ src/libsodium/libs/libsse2.a
 src/libsodium/libs/libsse41.a
 src/libsodium/libs/libssse3.a
 .zig-cache
+tmp/
 Vagrantfile
 zig-cache
 zig-out

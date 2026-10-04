@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([libsodium],[1.0.21],[https://github.com/jedisct1/libsodium/issues],[libsodium],[https://libsodium.org])
+AC_INIT([libsodium],[1.0.22],[https://github.com/jedisct1/libsodium/issues],[libsodium],[https://libsodium.org])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/libsodium/sodium/version.c])
@@ -13,9 +13,9 @@ AM_DEP_TRACK
 AC_SUBST(VERSION)
 
 SODIUM_LIBRARY_VERSION_MAJOR=26
-SODIUM_LIBRARY_VERSION_MINOR=3
+SODIUM_LIBRARY_VERSION_MINOR=4
 DLL_VERSION=26
-SODIUM_LIBRARY_VERSION=29:0:3
+SODIUM_LIBRARY_VERSION=30:0:4
 #                       | | |
 #                +------+ | +---+
 #                |        |     |
@@ -376,8 +376,8 @@ AX_CHECK_CATCHABLE_ABRT
 
 AS_IF([test "x$with_threads" = "xyes"], [
   AX_TLS([AC_MSG_RESULT(thread local storage is supported)
-          AX_CHECK_COMPILE_FLAG([-ftls-model=local-dynamic],
-            [CFLAGS="$CFLAGS -ftls-model=local-dynamic"])],
+          AX_CHECK_COMPILE_FLAG([-ftls-model=global-dynamic],
+            [CFLAGS="$CFLAGS -ftls-model=global-dynamic"])],
          [AC_MSG_RESULT(thread local storage is not supported)]) ])
 
 LT_INIT
@@ -841,6 +841,21 @@ __asm__ __volatile__ ("xchgl %%ebx, %k1; cpuid; xchgl %%ebx, %k1" :
   ])
 AC_SUBST(HAVE_CPUID_V)
 
+AS_CASE([$host_cpu], [i?86|amd64|x86_64], [
+  AS_IF([test "$enable_asm" != "no"],[
+    AC_MSG_CHECKING(whether XGETBV can be used with inline assembly)
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[ ]], [[
+unsigned int xcr0;
+__asm__ __volatile__(".byte 0x0f, 0x01, 0xd0" :
+                     "=a" (xcr0) :
+                     "c" ((unsigned int) 0U) : "%edx");
+    ]])],
+    [AC_MSG_RESULT(yes)
+     AC_DEFINE([HAVE_XGETBV_ASM], [1], [XGETBV can be used with inline assembly])],
+    [AC_MSG_RESULT(no)])
+  ])
+])
+
 asm_hide_symbol="unsupported"
 AS_IF([test "$enable_asm" != "no"],[
   AC_MSG_CHECKING(if the .private_extern asm directive is supported)
@@ -939,9 +954,7 @@ AS_IF([test "x$EMSCRIPTEN" = "x"],[
   AC_MSG_CHECKING(for getrandom with a standard API)
   AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#endif
+#include <unistd.h>
 #ifdef HAVE_SYS_RANDOM_H
 # include <sys/random.h>
 #endif
@@ -959,9 +972,7 @@ if (&getrandom != NULL) {
   AC_MSG_CHECKING(for getentropy with a standard API)
   AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#endif
+#include <unistd.h>
 #ifdef HAVE_SYS_RANDOM_H
 # include <sys/random.h>
 #endif

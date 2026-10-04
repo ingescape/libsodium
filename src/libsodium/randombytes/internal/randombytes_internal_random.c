@@ -73,7 +73,8 @@ BOOLEAN NTAPI RtlGenRandom(PVOID RandomBuffer, ULONG RandomBufferLength);
 
 #define INTERNAL_RANDOM_BLOCK_SIZE crypto_core_hchacha20_OUTPUTBYTES
 
-#if defined(__OpenBSD__) || defined(__CloudABI__) || defined(__wasi__)
+#if defined(__OpenBSD__) || defined(__CloudABI__) || \
+    (defined(__wasm__) && !defined(__EMSCRIPTEN__))
 # define HAVE_SAFE_ARC4RANDOM 1
 #endif
 #if defined(__CloudABI__) || defined(__wasm__)
@@ -91,12 +92,11 @@ BOOLEAN NTAPI RtlGenRandom(PVOID RandomBuffer, ULONG RandomBufferLength);
 # endif
 #endif
 
-#if !defined(TLS) && !defined(__STDC_NO_THREADS__) && \
-    defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-# define TLS _Thread_local
-#endif
 #ifndef TLS
-# ifdef _WIN32
+# if !defined(CONFIGURED) && !defined(__STDC_NO_THREADS__) && \
+     defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#  define TLS _Thread_local
+# elif defined(_WIN32)
 #  define TLS __declspec(thread)
 # else
 #  define TLS
@@ -504,7 +504,7 @@ randombytes_internal_random_close(void)
     if (global.getrandom_available != 0) {
         ret = 0;
     }
-# elif !defined(NONEXISTENT_DEV_RANDOM) && defined(HAVE_SAFE_ARC4RANDOM)
+# elif defined(HAVE_SAFE_ARC4RANDOM)
     ret = 0;
 # else
     if (global.random_data_source_fd != -1 &&

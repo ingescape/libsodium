@@ -34,7 +34,7 @@
 # elif !defined(alloca)
 #  if defined(__clang__) || defined(__GNUC__)
 #   define alloca __builtin_alloca
-#  elif defined _AIX
+#  elif defined(_AIX)
 #   define alloca __alloca
 #  elif defined _MSC_VER
 #   include <malloc.h>
@@ -193,7 +193,8 @@ sodium_memcmp(const void *const b1_, const void *const b2_, size_t len)
         (const volatile unsigned char *volatile) b2_;
 #endif
     size_t                 i;
-    volatile unsigned char d = 0U;
+    unsigned char          d = 0U;
+    volatile unsigned char e;
 
 #if HAVE_WEAK_SYMBOLS
     _sodium_dummy_symbol_to_prevent_memcmp_lto(b1, b2, len);
@@ -201,7 +202,11 @@ sodium_memcmp(const void *const b1_, const void *const b2_, size_t len)
     for (i = 0U; i < len; i++) {
         d |= b1[i] ^ b2[i];
     }
-    return (1 & ((d - 1) >> 8)) - 1;
+    e = d;
+#if defined(__GNUC__) || defined(__clang__)
+    __asm__("" : "+r"(e) :);
+#endif
+    return (1 & ((e - 1) >> 8)) - 1;
 }
 
 #ifdef HAVE_WEAK_SYMBOLS
@@ -255,12 +260,17 @@ int
 sodium_is_zero(const unsigned char *n, const size_t nlen)
 {
     size_t                 i;
-    volatile unsigned char d = 0U;
+    unsigned char          d = 0U;
+    volatile unsigned char e;
 
     for (i = 0U; i < nlen; i++) {
         d |= n[i];
     }
-    return 1 & ((d - 1) >> 8);
+    e = d;
+#if defined(__GNUC__) || defined(__clang__)
+    __asm__("" : "+r"(e) :);
+#endif
+    return 1 & ((e - 1) >> 8);
 }
 
 void
@@ -503,6 +513,7 @@ _mprotect_readwrite(void *ptr, size_t size)
 
 #ifdef HAVE_ALIGNED_MALLOC
 
+/* LCOV_EXCL_START */
 __attribute__((noreturn)) static void
 _out_of_bounds(void)
 {
@@ -516,7 +527,8 @@ _out_of_bounds(void)
 #  endif
 # endif
     abort(); /* not something we want any higher-level API to catch */
-} /* LCOV_EXCL_LINE */
+}
+/* LCOV_EXCL_STOP */
 
 static inline size_t
 _page_round(const size_t size)
@@ -680,7 +692,7 @@ sodium_free(void *ptr)
     total_size = page_size + page_size + unprotected_size + page_size;
     _mprotect_readwrite(base_ptr, total_size);
     if (sodium_memcmp(canary_ptr, canary, sizeof canary) != 0) {
-        _out_of_bounds();
+        _out_of_bounds(); /* LCOV_EXCL_LINE */
     }
 # ifndef HAVE_PAGE_PROTECTION
     if (sodium_memcmp(unprotected_ptr + unprotected_size, canary,
@@ -757,7 +769,7 @@ sodium_pad(size_t *padded_buflen_p, unsigned char *buf,
         xpadlen -= unpadded_buflen % blocksize;
     }
     if ((size_t) SIZE_MAX - unpadded_buflen <= xpadlen) {
-        sodium_misuse();
+        sodium_misuse(); /* LCOV_EXCL_LINE */
     }
     xpadded_len = unpadded_buflen + xpadlen;
     if (xpadded_len >= max_buflen) {
