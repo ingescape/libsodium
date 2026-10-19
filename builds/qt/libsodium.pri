@@ -27,6 +27,7 @@ SOURCES += \
     $$PWD/../../src/libsodium/crypto_pwhash/argon2/argon2-core.c \
     $$PWD/../../src/libsodium/crypto_pwhash/argon2/argon2-fill-block-avx512f.c \
     $$PWD/../../src/libsodium/crypto_pwhash/argon2/argon2-fill-block-ref.c \
+    $$PWD/../../src/libsodium/crypto_pwhash/argon2/argon2-fill-block-neon.c \
     $$PWD/../../src/libsodium/crypto_pwhash/argon2/argon2-fill-block-ssse3.c \
     $$PWD/../../src/libsodium/crypto_pwhash/argon2/pwhash_argon2i.c \
     $$PWD/../../src/libsodium/crypto_pwhash/argon2/pwhash_argon2id.c \
@@ -210,6 +211,7 @@ HEADERS += \
     $$PWD/../../src/libsodium/include/sodium/crypto_sign_edwards25519sha512batch.h \
     $$PWD/../../src/libsodium/include/sodium.h \
     $$PWD/../../src/libsodium/crypto_pwhash/argon2/blamka-round-ref.h \
+    $$PWD/../../src/libsodium/crypto_pwhash/argon2/blamka-round-neon.h \
     $$PWD/../../src/libsodium/crypto_pwhash/argon2/blamka-round-avx2.h \
     $$PWD/../../src/libsodium/crypto_pwhash/argon2/argon2.h \
     $$PWD/../../src/libsodium/crypto_pwhash/argon2/blamka-round-ssse3.h \
